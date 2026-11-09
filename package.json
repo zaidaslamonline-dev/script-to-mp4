@@ -1,0 +1,14 @@
+{
+  "name": "script-to-mp4",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Approval-gated Hyperframes pipeline for vertical ad videos",
+  "scripts": {
+    "doctor": "hyperframes doctor",
+    "preview": "hyperframes preview",
+    "render:variant": "hyperframes render --fps 30 --workers 1 --quality standard"
+  },
+  "devDependencies": {
+    "hyperframes": "latest"
+  }
+}
