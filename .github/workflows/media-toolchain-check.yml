@@ -50,5 +50,7 @@ jobs:
         run: |
           node --version
           npx hyperframes doctor
+          cd hyperframes && npx hyperframes lint
+          cd ..
           yt-dlp --version
           python -c "import whisper, kokoro; print('Whisper and Kokoro imports OK')"
