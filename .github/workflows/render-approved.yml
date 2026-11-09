@@ -83,4 +83,4 @@ jobs:
           CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          gh issue comment 1 --repo "${{ github.repository }}" --body "Both approved MP4 renders passed FFprobe QA for campaign `$CAMPAIGN_ID`. Download the two-video artifact from the [workflow run]($RUN_URL). Artifact retention: 14 days."
+          gh issue comment 1 --repo "${{ github.repository }}" --body "The approved MP4 passed FFprobe QA for campaign `$CAMPAIGN_ID`. Download the single-video artifact from the [workflow run]($RUN_URL). Artifact retention: 14 days."
