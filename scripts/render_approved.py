@@ -26,9 +26,29 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for variant in variants:
         variant_id = str(variant["variant_id"]).upper()
-        source = args.runs_dir / f"variant-{variant_id}" / "index.html"
+        variant_runs = args.runs_dir / f"variant-{variant_id}"
+        source = variant_runs / "index.html"
         if not source.is_file():
-            sys.exit(f"Missing approved composition: {source}")
+            # Rebuild from committed campaign inputs on the runner. This keeps
+            # generated run directories out of Git while making render reproducible.
+            campaign_root = args.campaign.parent
+            storyboard = campaign_root / "storyboards" / f"variant-{variant_id}.json"
+            voiceover = campaign_root / "voiceovers" / f"variant-{variant_id}.wav"
+            if not storyboard.is_file():
+                sys.exit(f"Missing approved storyboard source: {storyboard}")
+            if not voiceover.is_file():
+                sys.exit(f"Missing approved voiceover file: {voiceover}")
+            subprocess.run(
+                [sys.executable, str(Path(__file__).with_name("build_composition.py")),
+                 "--campaign", str(args.campaign.resolve()),
+                 "--storyboard", str(storyboard.resolve()),
+                 "--voiceover", str(voiceover.resolve()),
+                 "--output-dir", str(variant_runs.resolve())],
+                check=True,
+            )
+            source = variant_runs / "index.html"
+        if not source.is_file():
+            sys.exit(f"Composition build did not create: {source}")
         out = args.output_dir / f"{campaign['campaign_id']}-variant-{variant_id}.mp4"
         subprocess.run(
             ["npx", "--yes", "hyperframes", "render", "--composition", str(source.resolve()),
