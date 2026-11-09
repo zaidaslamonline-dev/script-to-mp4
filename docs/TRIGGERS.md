@@ -32,3 +32,14 @@ Comment on [automation issue #1](https://github.com/zaidaslamonline-dev/script-t
 ```
 
 This starts the render workflow only when the repository owner posts the command. The workflow validates the campaign ID, enforces all script/voiceover/storyboard/render approval gates, renders both variants, runs FFprobe checks, and uploads the MP4s as a 14-day artifact. It will fail closed if any approval is missing.
+
+## One local command for both jobs
+
+After installing and authenticating GitHub CLI:
+
+```bash
+bash scripts/trigger.sh media-check
+bash scripts/trigger.sh render-approved campaign-id
+```
+
+The second command still enforces all approvals in the GitHub workflow; the local script cannot bypass them.
