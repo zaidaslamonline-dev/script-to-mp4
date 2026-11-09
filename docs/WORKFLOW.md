@@ -15,3 +15,37 @@
 
 ## Approval boundaries
 Script approval is not storyboard approval. Storyboard approval is not render approval. Manual Actions dispatch must validate the same approval fields as chat-driven approval.
+
+## Current command-line entry points
+
+These commands are deliberately separate so each approval gate remains visible:
+
+```bash
+# 1. Generate TTS only after setting script.approved_by_user=true,
+#    variant.approved=true, and exact variant.script_text in campaign JSON.
+python scripts/generate_voiceover.py \
+  --campaign campaigns/example-campaign/campaign.json \
+  --variant A --text-file runs/approved-script-A.txt \
+  --language en --voice af_heart --output runs/variant-A/voiceover.wav
+
+# 2. Verify the generated voiceover and create timed caption data.
+python scripts/verify_whisper.py runs/variant-A/voiceover.wav \
+  --language en --output runs/variant-A/transcript.json
+python scripts/captions_from_whisper.py runs/variant-A/transcript.json \
+  --output runs/variant-A/captions.json
+
+# 3. Build a reviewable HTML storyboard draft (does not render an MP4).
+python scripts/build_composition.py \
+  --campaign campaigns/example-campaign/campaign.json \
+  --storyboard campaigns/example-campaign/storyboards/variant-A.json \
+  --voiceover runs/variant-A/voiceover.wav \
+  --captions runs/variant-A/captions.json \
+  --output-dir runs/variant-A
+
+# 4. Render both variants only after every approval gate is recorded.
+python scripts/render_approved.py \
+  --campaign campaigns/example-campaign/campaign.json \
+  --runs-dir runs --output-dir renders
+```
+
+The Kokoro adapter currently supports English and Hindi. Gujarati is explicitly blocked because Kokoro does not provide a Gujarati voice pack; use a separately approved recording or evaluated Gujarati TTS engine rather than substituting another language.
