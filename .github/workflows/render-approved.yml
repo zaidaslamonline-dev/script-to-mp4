@@ -1,0 +1,78 @@
+name: Render approved campaign
+
+on:
+  workflow_dispatch:
+    inputs:
+      campaign_id:
+        description: Campaign folder name under campaigns/
+        required: true
+        type: string
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: read
+
+jobs:
+  render:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.number == 1 &&
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == 'zaidaslamonline-dev' &&
+        startsWith(github.event.comment.body, '/render-approved ')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Install Hyperframes
+        run: npm install --no-audit --no-fund
+      - name: Validate campaign command
+        id: campaign
+        env:
+          ISSUE_COMMENT: ${{ github.event.comment.body }}
+          DISPATCH_CAMPAIGN_ID: ${{ inputs.campaign_id }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import os, re
+          value = os.environ.get("DISPATCH_CAMPAIGN_ID", "").strip()
+          if os.environ.get("EVENT_NAME") == "issue_comment":
+              command = os.environ.get("ISSUE_COMMENT", "").strip()
+              match = re.fullmatch(r"/render-approved ([a-z0-9][a-z0-9-]*)", command)
+              if not match:
+                  raise SystemExit("Use the exact command: /render-approved campaign-id")
+              value = match.group(1)
+          if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", value):
+              raise SystemExit("Invalid campaign_id. Use lowercase letters, numbers, and hyphens.")
+          if not os.path.isfile(f"campaigns/{value}/campaign.json"):
+              raise SystemExit(f"Campaign not found: campaigns/{value}/campaign.json")
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"campaign_id={value}\n")
+          PY
+      - name: Render and QA approved variants
+        run: |
+          python scripts/render_approved.py \
+            --campaign "campaigns/${{ steps.campaign.outputs.campaign_id }}/campaign.json" \
+            --runs-dir "runs/${{ steps.campaign.outputs.campaign_id }}" \
+            --output-dir "renders/${{ steps.campaign.outputs.campaign_id }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.campaign.outputs.campaign_id }}-approved-mp4s
+          path: renders/${{ steps.campaign.outputs.campaign_id }}/*.mp4
+          if-no-files-found: error
+          retention-days: 14
