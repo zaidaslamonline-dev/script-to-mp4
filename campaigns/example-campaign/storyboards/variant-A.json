@@ -1,0 +1,9 @@
+{
+  "variant_id": "A",
+  "scenes": [
+    {"text": "Approved hook goes here", "start": 0.0, "end": 2.4},
+    {"text": "One supporting visual beat", "start": 2.4, "end": 5.8},
+    {"text": "Offer or call to action", "start": 5.8, "end": 8.2}
+  ],
+  "notes": "Draft timing is aligned to the approved voiceover; edit text and timing before storyboard approval."
+}
