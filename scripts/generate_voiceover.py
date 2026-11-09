@@ -15,6 +15,8 @@ SUPPORTED_VOICES = {"a", "b", "h"}
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--text-file", type=Path, required=True)
+    parser.add_argument("--campaign", type=Path, required=True, help="Campaign JSON containing approvals and approved variant copy")
+    parser.add_argument("--variant", required=True, choices=["A", "B"])
     parser.add_argument("--language", required=True, help="en, en-us, en-gb, or hi")
     parser.add_argument("--voice", required=True, help="Kokoro voice ID, e.g. af_heart or hf_alpha")
     parser.add_argument("--speed", type=float, default=1.0)
@@ -33,7 +35,16 @@ def main():
         parser.error(f"Voice '{args.voice}' does not match language '{args.language}' (expected prefix '{lang_code}').")
     if not 0.7 <= args.speed <= 1.3:
         parser.error("--speed must be between 0.7 and 1.3.")
+    campaign = json.loads(args.campaign.read_text(encoding="utf-8"))
+    if campaign.get("script", {}).get("approved_by_user") is not True:
+        parser.error("Script approval is required before TTS generation.")
+    variant = next((v for v in campaign.get("variants", []) if str(v.get("variant_id", "")).upper() == args.variant), None)
+    if not variant or variant.get("approved") is not True:
+        parser.error(f"Variant {args.variant} is not script-approved.")
     text = args.text_file.read_text(encoding="utf-8").strip()
+    approved_text = str(variant.get("script_text", "")).strip()
+    if not approved_text or text != approved_text:
+        parser.error("TTS input must exactly match the approved variant script_text in the campaign JSON.")
     if not text:
         parser.error("Approved script text is empty.")
 
