@@ -59,7 +59,7 @@ jobs:
           if not os.path.isfile(f"campaigns/{value}/campaign.json"):
               raise SystemExit(f"Campaign not found: campaigns/{value}/campaign.json")
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
-              out.write(f"campaign_id={value}\\n")
+              out.write(f"campaign_id={value}\n")
           PY
       - name: Normalize and validate uploaded audio
         run: |
