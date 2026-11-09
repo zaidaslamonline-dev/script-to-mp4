@@ -1,0 +1,130 @@
+name: Generate approved voiceovers
+
+on:
+  workflow_dispatch:
+    inputs:
+      campaign_id:
+        description: Campaign folder name under campaigns/
+        required: true
+        type: string
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: voiceover-${{ github.event.comment.id || inputs.campaign_id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  voiceover:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.number == 1 &&
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == 'zaidaslamonline-dev' &&
+        startsWith(github.event.comment.body, '/generate-voiceover ')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install speech dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y espeak-ng
+          python -m pip install --upgrade pip
+          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install -r requirements-audio.txt
+      - name: Validate command and approved scripts
+        id: campaign
+        env:
+          ISSUE_COMMENT: ${{ github.event.comment.body }}
+          DISPATCH_CAMPAIGN_ID: ${{ inputs.campaign_id }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import json, os, re
+          campaign_id = os.environ.get("DISPATCH_CAMPAIGN_ID", "").strip()
+          if os.environ.get("EVENT_NAME") == "issue_comment":
+              command = os.environ.get("ISSUE_COMMENT", "").strip()
+              match = re.fullmatch(r"/generate-voiceover ([a-z0-9][a-z0-9-]*)", command)
+              if not match:
+                  raise SystemExit("Use: /generate-voiceover campaign-id")
+              campaign_id = match.group(1)
+          if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", campaign_id):
+              raise SystemExit("Invalid campaign ID.")
+          path = f"campaigns/{campaign_id}/campaign.json"
+          if not os.path.isfile(path):
+              raise SystemExit(f"Campaign not found: {path}")
+          data = json.load(open(path, encoding="utf-8"))
+          if data.get("script", {}).get("approved_by_user") is not True:
+              raise SystemExit("Blocked: user script approval is missing.")
+          variants = data.get("variants", [])
+          if len(variants) != 2 or any(v.get("approved") is not True or not str(v.get("script_text", "")).strip() for v in variants):
+              raise SystemExit("Blocked: exactly two non-empty, script-approved variants are required.")
+          language = str(data.get("language", "en-us")).lower()
+          voice = str(data.get("voice_profile", {}).get("voice_id", "")).strip()
+          if not voice:
+              voice = "hf_alpha" if language == "hi" else "af_heart"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"campaign_id={campaign_id}\n")
+              out.write(f"language={language}\n")
+              out.write(f"voice={voice}\n")
+          PY
+      - name: Generate both approved voiceovers
+        env:
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+          LANGUAGE: ${{ steps.campaign.outputs.language }}
+          VOICE: ${{ steps.campaign.outputs.voice }}
+        run: |
+          mkdir -p "campaigns/$CAMPAIGN_ID/voiceovers" "runs/$CAMPAIGN_ID"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          campaign_id = os.environ["CAMPAIGN_ID"]
+          data = json.loads(Path(f"campaigns/{campaign_id}/campaign.json").read_text(encoding="utf-8"))
+          for item in data["variants"]:
+              key = str(item["variant_id"]).upper()
+              Path(f"runs/{campaign_id}/approved-script-{key}.txt").write_text(item["script_text"].strip(), encoding="utf-8")
+          PY
+          for variant in A B; do
+            python scripts/generate_voiceover.py \
+              --campaign "campaigns/$CAMPAIGN_ID/campaign.json" \
+              --variant "$variant" \
+              --text-file "runs/$CAMPAIGN_ID/approved-script-$variant.txt" \
+              --language "$LANGUAGE" \
+              --voice "$VOICE" \
+              --output "campaigns/$CAMPAIGN_ID/voiceovers/variant-$variant.wav"
+          done
+      - name: Commit voiceovers to GitHub
+        env:
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.json" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.json"
+          git commit -m "Add approved campaign voiceovers: $CAMPAIGN_ID"
+          git push origin HEAD:main
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.campaign.outputs.campaign_id }}-voiceovers
+          path: campaigns/${{ steps.campaign.outputs.campaign_id }}/voiceovers/*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Report voiceover locations
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment 1 --repo "${{ github.repository }}" --body "Voiceovers generated and committed for campaign `$CAMPAIGN_ID`. Files: [Variant A](https://github.com/${{ github.repository }}/blob/main/campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav) · [Variant B](https://github.com/${{ github.repository }}/blob/main/campaigns/$CAMPAIGN_ID/voiceovers/variant-B.wav). [Workflow run]($RUN_URL). Listen and approve them before storyboard production."
