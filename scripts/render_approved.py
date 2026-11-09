@@ -21,6 +21,8 @@ def main():
     variants = campaign.get("variants", [])
     if len(variants) != 2 or any(v.get("approved") is not True for v in variants):
         sys.exit("BLOCKED: exactly two script-approved variants are required.")
+    if any(v.get("storyboard_status") != "approved" for v in variants):
+        sys.exit("BLOCKED: each variant storyboard must be individually approved.")
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for variant in variants:
         variant_id = str(variant["variant_id"]).upper()
