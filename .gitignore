@@ -12,6 +12,7 @@ downloads/
 *.mp4
 *.mov
 *.wav
+!campaigns/**/voiceovers/*.wav
 *.mp3
 *.srt
 *.vtt
