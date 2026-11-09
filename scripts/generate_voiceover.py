@@ -52,6 +52,7 @@ def main():
         import numpy as np
         import soundfile as sf
         from kokoro import KPipeline
+        from importlib.metadata import version as package_version
     except ImportError as exc:
         sys.exit(f"Missing TTS dependency: {exc}. Install requirements-audio.txt")
 
@@ -68,7 +69,7 @@ def main():
     sf.write(str(args.output), waveform, 24000, subtype="PCM_16")
     duration = len(waveform) / 24000
     metadata = {
-        "engine": "kokoro", "language": language, "voice_id": args.voice,
+        "engine": "kokoro", "engine_version": package_version("kokoro"), "language": language, "voice_id": args.voice,
         "speed": args.speed, "device": "cpu", "sample_rate": 24000,
         "duration_seconds": round(duration, 3), "output": str(args.output),
     }
