@@ -7,6 +7,7 @@ CONTROL_ISSUE=1
 usage() {
   echo "Usage:"
   echo "  bash scripts/trigger.sh media-check"
+  echo "  bash scripts/trigger.sh generate-voiceover <campaign-id>"
   echo "  bash scripts/trigger.sh render-approved <campaign-id>"
 }
 
@@ -19,6 +20,14 @@ gh auth status >/dev/null
 case "${1:-}" in
   media-check)
     command_text="/run-media-check"
+    ;;
+  generate-voiceover)
+    campaign_id="${2:-}"
+    if [[ ! "$campaign_id" =~ ^[a-z0-9][a-z0-9-]*$ ]]; then
+      usage >&2
+      exit 2
+    fi
+    command_text="/generate-voiceover $campaign_id"
     ;;
   render-approved)
     campaign_id="${2:-}"
