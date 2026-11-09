@@ -2,12 +2,26 @@ name: Media toolchain check
 
 on:
   workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: read
+  issues: read
 
 jobs:
   check:
+    # ChatGPT can trigger this by commenting on control issue #1.
+    # Restrict the command to the repository owner and an exact command match.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.number == 1 &&
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == 'zaidaslamonline-dev' &&
+        github.event.comment.body == '/run-media-check'
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
