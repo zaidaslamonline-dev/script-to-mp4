@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Script to MP4 — Preview Composition</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; background: #080808; color: #fff; font-family: Arial, sans-serif; }
+    [data-composition-id="root"] { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #080808; }
+    .clip { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 90px; }
+    .hook { font-size: 112px; line-height: 0.98; font-weight: 900; letter-spacing: -5px; text-transform: uppercase; color: #fff; }
+    .accent { color: #39ff14; }
+    .safe-note { position: absolute; bottom: 150px; left: 70px; right: 70px; font-size: 28px; color: #aaa; text-align: center; }
+  </style>
+</head>
+<body>
+  <div id="root" data-composition-id="root" data-start="0" data-width="1080" data-height="1920">
+    <div id="placeholder-hook" class="clip hook" data-start="0" data-duration="3" data-track-index="0">
+      YOUR APPROVED <span class="accent">&nbsp;HOOK</span>
+    </div>
+    <div id="placeholder-note" class="clip safe-note" data-start="placeholder-hook" data-duration="3" data-track-index="1">
+      Preview scaffold — replace from an approved campaign storyboard.
+    </div>
+  </div>
+</body>
+</html>
