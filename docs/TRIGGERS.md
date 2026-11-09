@@ -37,15 +37,13 @@ Voiceover generation does not approve the audio. Listen to both files and explic
 
 ## Import an uploaded voiceover
 
-Upload audio into `campaigns/<campaign-id>/voiceovers/` before triggering:
-- `uploaded-master.wav` (or .mp3, .m4a, .aac, .flac, .ogg) for both variants when their spoken scripts are identical; or
-- `variant-A.wav` and `variant-B.wav` (or the same supported extensions) when variant copy differs.
+Upload one complete narration into `campaigns/<campaign-id>/voiceovers/` before triggering. Name it `uploaded-master.mp3` (or WAV, M4A, AAC, FLAC, OGG) or `variant-A.mp3`.
 
 Then comment on issue #1:
 ```
 /import-voiceover campaign-id
 ```
-The workflow normalizes the upload to mono 48 kHz WAV, records source and output hashes, and commits canonical variant files. It does not generate speech and does not approve the audio. Listen and explicitly approve before storyboard production.
+For a single-video campaign, the workflow normalizes the complete recording to mono 48 kHz WAV, records source and output hashes, and commits `variant-A.wav` plus provenance. It does not generate speech and does not approve the audio. Listen and explicitly approve before storyboard production. Multi-variant campaigns require their own explicit setup.
 
 ## Render an approved campaign from chat
 
