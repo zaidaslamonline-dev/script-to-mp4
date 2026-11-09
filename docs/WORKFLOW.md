@@ -48,4 +48,4 @@ python scripts/render_approved.py \
   --runs-dir runs --output-dir renders
 ```
 
-The Kokoro adapter currently supports English and Hindi. Gujarati is explicitly blocked because Kokoro does not provide a Gujarati voice pack; use a separately approved recording or evaluated Gujarati TTS engine rather than substituting another language.
+The optional BGM input is rejected unless its asset ID resolves to a manifest record with verified commercial rights and a matching SHA-256 file hash. Omit BGM if no cleared track is available.\n\nThe Kokoro adapter currently supports English and Hindi. Gujarati is explicitly blocked because Kokoro does not provide a Gujarati voice pack; use a separately approved recording or evaluated Gujarati TTS engine rather than substituting another language.
