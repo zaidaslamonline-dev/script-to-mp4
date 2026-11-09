@@ -1,0 +1,65 @@
+{
+  "variant_id": "A",
+  "status": "draft",
+  "format": "vertical_9_16",
+  "resolution": "1080x1920",
+  "fps": 30,
+  "voiceover_source": "voiceovers/variant-A.wav",
+  "notes": "One complete six-scene FixReach ad. This is a visual planning draft only; align exact scene boundaries to the imported narration and use the supplied Sid and Lala Bhai character pack. Do not render until the user reviews and approves the storyboard.",
+  "scenes": [
+    {
+      "scene": 1,
+      "title": "The Problem",
+      "start": 0,
+      "end": 12,
+      "dialogue_cue": "Lala: enquiries aa rahi hain, confirmed home service bookings nahi",
+      "visual_description": "Open hard on Lala Bhai looking frustrated beside a phone flooded with enquiry notifications. Cut between incoming calls and an empty booking calendar. Kinetic Hinglish typography emphasizes ENQUIRIES vs BOOKINGS."
+    },
+    {
+      "scene": 2,
+      "title": "Sid Enters",
+      "start": 12,
+      "end": 25,
+      "dialogue_cue": "Sid jokes phone garam, business thanda; Lala lists poor enquiries",
+      "visual_description": "Sid pops into frame with a playful entrance. Phone heats up with comic visual steam while a cold, empty service calendar sits beside Lala. Show three quick bad-enquiry beats: price-only, outside service area, later."
+    },
+    {
+      "scene": 3,
+      "title": "The Realization",
+      "start": 25,
+      "end": 39,
+      "dialogue_cue": "Quantity is not the problem; quality is",
+      "visual_description": "Sid reframes the problem. A flood of generic enquiry bubbles collapses into a smaller set of relevant customer cards. Punch in on QUALITY with a sharp kinetic type hit."
+    },
+    {
+      "scene": 4,
+      "title": "The FixReach Solution",
+      "start": 39,
+      "end": 65,
+      "dialogue_cue": "FixReach and the three qualifying questions",
+      "visual_description": "Show a clean, animated lead qualification flow with three large prompts: PROBLEM? LOCATION? WHEN? Use simple repair icons and a home-service booking journey. Keep claims to better-qualified enquiries and booking opportunities; no guaranteed bookings."
+    },
+    {
+      "scene": 5,
+      "title": "The Payoff",
+      "start": 65,
+      "end": 78,
+      "dialogue_cue": "Lala understands; technician knows which home to visit",
+      "visual_description": "Lala has a realization moment. Show a technician receiving a clear service card and route-to-home cue, with Sid affirming. Use the actual supplied character artwork and expressive poses."
+    },
+    {
+      "scene": 6,
+      "title": "CTA",
+      "start": 78,
+      "end": 92.84,
+      "dialogue_cue": "Repair business owners comment LEADS for a free Campaign Audit",
+      "visual_description": "High-energy direct-to-camera character delivery. Finish on a bold clean end card: FIXREACH / COMMENT LEADS / GET YOUR FREE CAMPAIGN AUDIT / Find out what's working, what's not, and where your campaigns can improve."
+    }
+  ],
+  "final_on_screen_text": [
+    "FIXREACH",
+    "COMMENT \"LEADS\"",
+    "GET YOUR FREE CAMPAIGN AUDIT",
+    "Find out what's working, what's not, and where your campaigns can improve."
+  ]
+}
