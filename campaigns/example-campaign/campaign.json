@@ -34,5 +34,11 @@
     "voiceover_approved": false,
     "storyboards_approved": false,
     "render_approved": false
+  },
+  "language": "en-us",
+  "voice_profile": {
+    "voice_id": "af_heart",
+    "speed": 1,
+    "notes": "Example default voice; change only after listening and approving a sample."
   }
 }
