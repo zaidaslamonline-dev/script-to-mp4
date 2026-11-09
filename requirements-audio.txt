@@ -1,0 +1,5 @@
+# CPU-first media/audio dependencies. Review and lock exact versions after CI smoke tests.
+openai-whisper
+kokoro
+soundfile
+yt-dlp
