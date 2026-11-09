@@ -5,7 +5,7 @@
 3. Prepare two creative directions with distinct hooks. Variant B may use slight supporting script changes, while preserving approved factual claims and offer.
 4. Approve both variant scripts. Save the JSON source and GitHub Issue approval record.
 5. Generate both Kokoro voiceovers on Ubuntu only after script approval; commit WAV files and metadata into the campaign's GitHub folder.
-6. Listen to both voiceovers in chat and record explicit voiceover approval. Generation does not equal approval.
+6. Receive direct GitHub links to both voiceover files, listen to them, and record explicit voiceover approval. Generation does not equal approval.
 7. Create a visual storyboard contact sheet in the ChatGPT conversation for review. Store the approved scene plan JSON in the campaign folder; use Hyperframes to build the timed composition from that plan and the saved narration.
 8. Obtain explicit storyboard approval in chat and record approval separately for both variants.
 9. Render each variant as 1080x1920, 30 FPS MP4. Hyperframes owns timeline composition; FFmpeg handles audio post-processing, muxing, encoding, and probes.
