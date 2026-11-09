@@ -72,7 +72,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.json" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.json"
+          git add "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.json"
           git commit -m "Import uploaded voiceovers: $CAMPAIGN_ID"
           git push origin HEAD:main
       - uses: actions/upload-artifact@v4
