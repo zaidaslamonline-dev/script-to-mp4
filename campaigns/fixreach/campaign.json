@@ -1,0 +1,46 @@
+{
+  "campaign_id": "fixreach",
+  "client_id": "fixreach",
+  "status": "voiceover_review",
+  "objective": "Generate better-qualified customer enquiries and home-service booking opportunities for local repair businesses",
+  "audience": "Local repair and home-service businesses",
+  "offer": "Free Campaign Audit",
+  "core_message": "Repair businesses need better-qualified enquiries, not just more calls. Qualify problem, location and service timing to help plan home-service visits.",
+  "script": {
+    "status": "approved",
+    "approved_by_user": true,
+    "approved_at": "2026-11-09",
+    "source": "chat-curated",
+    "notes": "User-approved Hinglish dialogue. One continuous Viraj voice recording split serially at the transition after Lala's realization."
+  },
+  "variants": [
+    {
+      "variant_id": "A",
+      "hook": "Bhai, enquiries toh bahut aa rahi hain... lekin confirmed home service bookings?",
+      "script_delta": "First serial section of the supplied approved dialogue, ending with Lala's realization about focusing on customers who actually need service.",
+      "storyboard_status": "not_started",
+      "approved": true,
+      "script_text": "[frustrated] Bhai, enquiries toh bahut aa rahi hain... [pause] lekin confirmed home service bookings? [disappointed] Woh toh jaise gayab hi ho gayi hain!\n[playful] Arre Lala Bhai! Phone toh garam ho raha hai... [teasing] par business thanda kyun pada hai?\n[annoyed] Kya bataun, Bhai! Koi sirf price poochta hai, koi service area ke bahar hota hai... aur koi bolta hai, \"Baad mein batata hoon.\"\n[confident] Toh problem enquiries ki quantity nahi hai, Lala Bhai... [emphasis] problem hai unki quality!\n[confused] Matlab?\n[explaining] Matlab, har enquiry actual customer nahi hoti. Tumhe aise log chahiye jinhe sach mein repair service ki zaroorat ho.\n[upbeat] Aur yahin FixReach karta hai help! [confident] Better-qualified customer enquiries aur home-service booking opportunities paane mein.\n[clear, deliberate] Customer se samjho teen simple cheezein:\n[slight pause] Pehli — problem kya hai?\n[slight pause] Doosri — location kahan hai?\n[slight pause] Teesri — service kab chahiye?\n[reassuring] Isse tum customer ki requirement samajh sakte ho aur home service visit schedule karne mein better planning kar sakte ho.\n[realization] Achhaaa! Matlab ab sirf phone calls ke peeche nahi bhaagna... [excited] balki actual service chahne wale customers par focus karna hai!"
+    },
+    {
+      "variant_id": "B",
+      "hook": "Bilkul! Technician ko bhi pata hoga ki kis customer ke ghar jaana hai.",
+      "script_delta": "Second serial section of the supplied approved dialogue, continuing directly into the approved free Campaign Audit CTA.",
+      "storyboard_status": "not_started",
+      "approved": true,
+      "script_text": "[affirming] Bilkul! Technician ko bhi pata hoga ki kis customer ke ghar jaana hai.\n[energetic, direct] Aap bhi repair business chalate ho? Aur better leads chahte ho?\n[excited] Toh comment karo \"LEADS\"!\n[enthusiastic] FixReach ki taraf se milega aapko FREE Campaign Audit!\n[cheerful] Bilkul free, Bhai! Apni campaigns ka haal jaan lo!"
+    }
+  ],
+  "production": {
+    "voiceover_approved": false,
+    "storyboards_approved": false,
+    "render_approved": false
+  },
+  "language": "hi",
+  "voice_profile": {
+    "voice_id": "elevenlabs-viraj-rich-soft",
+    "provider": "ElevenLabs",
+    "voice_name": "Viraj - Rich and Soft",
+    "notes": "Single voice for all characters; user-supplied recording. Preserve original source and split serially into Variant A and Variant B."
+  }
+}
