@@ -22,3 +22,13 @@ The script posts the same command to issue #1. It does not store or ask for a to
 The workflow still supports `workflow_dispatch` from the Actions page.
 
 Workflow: [Media toolchain check](../.github/workflows/media-toolchain-check.yml)
+
+## Render an approved campaign from chat
+
+Comment on [automation issue #1](https://github.com/zaidaslamonline-dev/script-to-mp4/issues/1):
+
+```
+/render-approved campaign-id
+```
+
+This starts the render workflow only when the repository owner posts the command. The workflow validates the campaign ID, enforces all script/voiceover/storyboard/render approval gates, renders both variants, runs FFprobe checks, and uploads the MP4s as a 14-day artifact. It will fail closed if any approval is missing.
