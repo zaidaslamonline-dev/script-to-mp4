@@ -35,6 +35,18 @@ The workflow uses Kokoro on a CPU runner, generates both WAV files, commits the 
 
 Voiceover generation does not approve the audio. Listen to both files and explicitly approve them in the campaign record before storyboard production.
 
+## Import an uploaded voiceover
+
+Upload audio into `campaigns/<campaign-id>/voiceovers/` before triggering:
+- `uploaded-master.wav` (or .mp3, .m4a, .aac, .flac, .ogg) for both variants when their spoken scripts are identical; or
+- `variant-A.wav` and `variant-B.wav` (or the same supported extensions) when variant copy differs.
+
+Then comment on issue #1:
+```
+/import-voiceover campaign-id
+```
+The workflow normalizes the upload to mono 48 kHz WAV, records source and output hashes, and commits canonical variant files. It does not generate speech and does not approve the audio. Listen and explicitly approve before storyboard production.
+
 ## Render an approved campaign from chat
 
 Comment on [automation issue #1](https://github.com/zaidaslamonline-dev/script-to-mp4/issues/1):
