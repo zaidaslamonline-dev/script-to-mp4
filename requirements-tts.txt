@@ -1,0 +1,3 @@
+# Minimal CPU TTS dependencies for approved voiceover generation.
+kokoro
+soundfile
