@@ -102,6 +102,7 @@ def main():
 <div id="root" data-composition-id="root" data-width="1080" data-height="1920" data-duration="{duration:.3f}">
 <audio id="voiceover" data-start="0" data-duration="{duration:.3f}" data-track-index="0" src="./assets/voiceover.wav"></audio>
 {markup}
+{caption_html}
 </div></body></html>'''
     (args.output_dir / "index.html").write_text(document, encoding="utf-8")
     manifest = {
