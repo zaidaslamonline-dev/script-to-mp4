@@ -63,7 +63,17 @@ def main():
         end = float(scene.get("end", -1))
         if not text or start < 0 or end <= start or end > duration + 0.05:
             p.error(f"Invalid scene at index {index}: require text and 0 <= start < end <= duration.")
-        normalized.append((index, start, end - start, text))
+        image_path = None
+        if scene.get("image"):
+            candidate = (Path.cwd() / str(scene["image"])).resolve()
+            try:
+                candidate.relative_to(Path.cwd().resolve())
+            except ValueError:
+                p.error(f"Scene image must be inside the repository: {scene['image']}")
+            if not candidate.is_file():
+                p.error(f"Scene image does not exist: {candidate}")
+            image_path = candidate
+        normalized.append((index, start, end - start, text, image_path))
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     assets = args.output_dir / "assets"
@@ -85,11 +95,16 @@ def main():
     safe_accent = accent if isinstance(accent, str) and accent.startswith("#") else "#39FF14"
 
     clips = []
-    for index, start, length, text in normalized:
+    for index, start, length, text, image_path in normalized:
+        image_markup = ""
+        if image_path:
+            image_target = assets / f"scene-{index+1}{image_path.suffix.lower()}"
+            shutil.copy2(image_path, image_target)
+            image_markup = f'<img class="scene-image" src="./assets/{html.escape(image_target.name)}" alt="">'
         clips.append(
             f'<div id="scene-{index+1}" class="clip scene" data-start="{start:.3f}" '
             f'data-duration="{length:.3f}" data-track-index="{index+1}">'
-            f'<span>{html.escape(text)}</span></div>'
+            f'{image_markup}<span>{html.escape(text)}</span></div>'
         )
     markup = "\n".join(clips)
     caption_markup = []
@@ -111,7 +126,9 @@ def main():
 <style>
 *{{box-sizing:border-box}}html,body{{margin:0;width:100%;height:100%;background:{safe_primary};color:#fff;font-family:Arial,sans-serif}}
 #root{{position:relative;width:1080px;height:1920px;overflow:hidden;background:{safe_primary}}}
-.scene{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:100px;text-align:center}}
+.scene{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:100px;text-align:center;overflow:hidden}}
+.scene-image{{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}}
+.scene span{{position:relative;z-index:1;padding:24px 32px;background:rgba(0,0,0,.22);border-radius:24px}}
 .scene span{{font-size:96px;line-height:1.02;font-weight:900;letter-spacing:-3px;text-transform:uppercase;text-wrap:balance;text-shadow:0 8px 35px #000}}
 .scene:nth-of-type(2n) span{{color:{safe_accent}}}
 .caption{{position:absolute;inset:auto 50px 230px;z-index:100;display:flex;justify-content:center;align-items:center;text-align:center}}
@@ -126,7 +143,7 @@ def main():
     manifest = {
         "campaign_id": campaign.get("campaign_id"), "variant_id": variant_id,
         "duration_seconds": duration, "voiceover": "assets/voiceover.wav", "program_audio": "assets/program_mix.wav", "bgm_asset_id": args.bgm_asset_id,
-        "scene_count": len(normalized), "status": "storyboard_draft",
+        "scene_count": len(normalized), "image_scene_count": sum(1 for item in normalized if item[4]), "status": "storyboard_draft",
         "note": "HTML preview only; rendering remains blocked until storyboard and render approvals are recorded."
     }
     (args.output_dir / "composition-manifest.json").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
