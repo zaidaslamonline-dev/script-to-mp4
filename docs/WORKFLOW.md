@@ -4,17 +4,24 @@
 2. Curate the script collaboratively in chat; do not generate copy independently or rewrite approved text.
 3. Prepare two creative directions with distinct hooks. Variant B may use slight supporting script changes, while preserving approved factual claims and offer.
 4. Approve both variant scripts. Save the JSON source and GitHub Issue approval record.
-5. Generate Kokoro voiceover on Ubuntu. Use Whisper for multilingual transcript verification/caption alignment, not for TTS.
-6. Store versioned voice profiles and per-character voice assignments.
-7. Build both Hyperframes storyboards using narration-derived timing. Obtain explicit storyboard approval.
-8. Render each variant as 1080x1920, 30 FPS MP4. Hyperframes owns timeline composition and animation; FFmpeg handles audio post-processing, muxing, encoding, and probes.
-9. Run QA; reject invalid renders and preserve failed-run logs. Only bounded safe retries are allowed.
-10. Attach both MP4s to the GitHub Issue and provide direct chat download links.
-11. Archive approved inputs, model versions, asset provenance, storyboards, voice settings, logs, QA reports, and outputs under immutable run IDs.
-12. Revisions create a new run/version; never overwrite prior approved artifacts.
+5. Generate both Kokoro voiceovers on Ubuntu only after script approval; commit WAV files and metadata into the campaign's GitHub folder.
+6. Listen to both voiceovers in chat and record explicit voiceover approval. Generation does not equal approval.
+7. Create a visual storyboard contact sheet in the ChatGPT conversation for review. Store the approved scene plan JSON in the campaign folder; use Hyperframes to build the timed composition from that plan and the saved narration.
+8. Obtain explicit storyboard approval in chat and record approval separately for both variants.
+9. Render each variant as 1080x1920, 30 FPS MP4. Hyperframes owns timeline composition; FFmpeg handles audio post-processing, muxing, encoding, and probes.
+10. Run QA; reject invalid renders and preserve failed-run logs. Only bounded safe retries are allowed.
+11. Upload final MP4s as GitHub Actions artifacts and provide direct links in chat.
+12. Archive approved inputs, model versions, asset provenance, storyboards, voice settings, logs, QA reports, and outputs under immutable run IDs. Revisions create a new run/version; never overwrite prior approved artifacts.
 
 ## Approval boundaries
 Script approval is not storyboard approval. Storyboard approval is not render approval. Manual Actions dispatch must validate the same approval fields as chat-driven approval.
+
+## Chat-controlled stages
+
+- Script approval is recorded in `campaign.json` only after explicit user approval in chat.
+- `/generate-voiceover <campaign-id>` creates and commits the two approved voiceovers. The assistant then presents them for listening and approval.
+- The assistant creates a campaign-specific storyboard preview in chat using image generation. After approval, it saves the scene plan JSON and marks the storyboard approvals in `campaign.json`.
+- `/render-approved <campaign-id>` is used only after final render approval. The render workflow can rebuild compositions from committed storyboard JSON and voiceover WAVs, so temporary run folders do not need to be committed.
 
 ## Current command-line entry points
 
