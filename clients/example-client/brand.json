@@ -1,0 +1,11 @@
+{
+  "client_id": "example-client",
+  "display_name": "Example Client",
+  "status": "template",
+  "brand": {"logo": null, "colors": {"primary": "#000000", "accent": "#39FF14", "secondary": "#FFE600"}, "fonts": [], "tone": [], "guidelines": ""},
+  "languages": ["en", "hi", "gu"],
+  "mascots": [],
+  "voice_profile_ids": [],
+  "approved_asset_collections": [],
+  "notes": "Template only. Keep confidential client assets out of source control unless explicitly authorized."
+}
