@@ -6,7 +6,7 @@
 4. Approve both variant scripts. Save the JSON source and GitHub Issue approval record.
 5. Choose the narration path:
    - **Generated:** run the configured TTS engine only after script approval.
-   - **Uploaded:** provide an externally generated voiceover (for example, ElevenLabs). Upload one `uploaded-master` file if both variants have identical spoken copy, or separate `variant-A` and `variant-B` files if the copy differs. Supported source formats: WAV, MP3, M4A, AAC, FLAC, OGG.
+   - **Uploaded:** provide an externally generated voiceover (for example, ElevenLabs). Upload one `uploaded-master` file if the configured video output have identical spoken copy, or separate `variant-A` and `variant-B` files if the copy differs. Supported source formats: WAV, MP3, M4A, AAC, FLAC, OGG.
 6. Normalize uploaded audio to mono 48 kHz PCM WAV, retain source/provenance hashes, and validate duration. Uploaded audio is never silently replaced by TTS. Listen to it and explicitly approve it; import/generation does not equal approval.
 7. Create a visual storyboard contact sheet in the ChatGPT conversation for review. Store the approved scene plan JSON in the campaign folder; use Hyperframes to build the timed composition from that plan and the saved narration.
 8. Obtain explicit storyboard approval in chat and record approval separately for both variants.
