@@ -16,6 +16,7 @@ def main():
     p.add_argument("--campaign", type=Path, required=True)
     p.add_argument("--storyboard", type=Path, required=True)
     p.add_argument("--voiceover", type=Path, required=True)
+    p.add_argument("--captions", type=Path, help="Optional Whisper captions JSON")
     p.add_argument("--output-dir", type=Path, required=True)
     args = p.parse_args()
 
@@ -73,6 +74,19 @@ def main():
             f'<span>{html.escape(text)}</span></div>'
         )
     markup = "\n".join(clips)
+    caption_markup = []
+    if args.captions:
+        caption_data = load_json(args.captions)
+        for index, caption in enumerate(caption_data.get("captions", [])):
+            text = str(caption.get("text", "")).strip()
+            start, end = float(caption.get("start", -1)), float(caption.get("end", -1))
+            if not text or start < 0 or end <= start or end > duration + 0.05:
+                p.error(f"Invalid caption at index {index}.")
+            caption_markup.append(
+                f'<div id="caption-{index+1}" class="clip caption" data-start="{start:.3f}" '
+                f'data-duration="{end-start:.3f}" data-track-index="99"><span>{html.escape(text)}</span></div>'
+            )
+    caption_html = "\n".join(caption_markup)
     document = f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{html.escape(campaign.get("campaign_id", "campaign"))} — Variant {html.escape(variant_id)}</title>
@@ -82,6 +96,8 @@ def main():
 .scene{{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:100px;text-align:center}}
 .scene span{{font-size:96px;line-height:1.02;font-weight:900;letter-spacing:-3px;text-transform:uppercase;text-wrap:balance;text-shadow:0 8px 35px #000}}
 .scene:nth-of-type(2n) span{{color:{safe_accent}}}
+.caption{{position:absolute;inset:auto 50px 230px;z-index:100;display:flex;justify-content:center;align-items:center;text-align:center}}
+.caption span{{max-width:940px;padding:18px 30px;border-radius:18px;background:rgba(0,0,0,.78);font-size:48px;line-height:1.12;font-weight:800;color:#fff;text-shadow:none}}
 </style></head><body>
 <div id="root" data-composition-id="root" data-width="1080" data-height="1920" data-duration="{duration:.3f}">
 <audio id="voiceover" data-start="0" data-duration="{duration:.3f}" data-track-index="0" src="./assets/voiceover.wav"></audio>
