@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "selection_policy": "per_character",
+  "default_engine": "kokoro",
+  "characters": {
+    "sid": {
+      "engine": null,
+      "voice_id": null,
+      "language": "hi",
+      "status": "audition_pending"
+    },
+    "lala-bhai": {
+      "engine": null,
+      "voice_id": null,
+      "language": "hi",
+      "status": "audition_pending"
+    }
+  },
+  "engines": {
+    "kokoro": {
+      "model": "hexgrad/Kokoro-82M",
+      "license": "Apache-2.0",
+      "languages": ["Hindi", "English"],
+      "status": "enabled",
+      "notes": "Current baseline. Test Hindi pronunciation and Hinglish code-switching."
+    },
+    "indic-parler-tts": {
+      "model": "ai4bharat/indic-parler-tts",
+      "license": "Apache-2.0",
+      "languages": ["Hindi", "Gujarati", "English", "other Indic languages"],
+      "status": "candidate",
+      "notes": "Prompt-controlled speaker identity, pitch, pace and delivery. Hugging Face access may require accepting model conditions."
+    },
+    "indic-speak": {
+      "model": "bodhan-ai/indic-speak",
+      "license": "Indic Open Model License v1.0",
+      "languages": ["Hindi", "Gujarati", "English", "other Indic languages"],
+      "status": "candidate_gated",
+      "notes": "Purpose-built code-mixed Indian speech. Requires gated Hugging Face access and license review; include required attribution and comply with service-hosting restrictions."
+    },
+    "indicf5": {
+      "model": "ai4bharat/IndicF5",
+      "license": "MIT",
+      "languages": ["Hindi", "Gujarati", "other Indic languages"],
+      "status": "candidate",
+      "notes": "Reference-audio-conditioned synthesis. Use only recordings with explicit speaker permission; requires a reference clip and its exact transcript."
+    },
+    "piper-hi": {
+      "model": "rhasspy/piper-voices:hi_IN",
+      "license": "voice-specific; unresolved",
+      "languages": ["Hindi"],
+      "status": "blocked_pending_license_review",
+      "notes": "Hindi voice model cards identify CC BY-NC-SA 4.0 training data. Do not use in client/commercial output until model-weight and generated-audio rights are authoritatively clarified."
+    }
+  },
+  "approval_rule": "No engine or voice is production-approved until the user explicitly selects it for that character."
+}
