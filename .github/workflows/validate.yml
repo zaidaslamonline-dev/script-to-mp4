@@ -1,0 +1,25 @@
+name: Validate project
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install pytest
+      - run: python -m json.tool config/defaults.json > /dev/null
+      - run: python -m json.tool campaigns/example-campaign/campaign.json > /dev/null
+      - run: python -m json.tool clients/example-client/brand.json > /dev/null
+      - run: python -m py_compile scripts/qa_ffprobe.py scripts/verify_whisper.py
