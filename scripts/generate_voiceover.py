@@ -3,6 +3,7 @@
 import argparse
 import json
 import sys
+import hashlib
 from pathlib import Path
 
 LANGUAGES = {
@@ -69,7 +70,9 @@ def main():
     sf.write(str(args.output), waveform, 24000, subtype="PCM_16")
     duration = len(waveform) / 24000
     metadata = {
-        "engine": "kokoro", "engine_version": package_version("kokoro"), "language": language, "voice_id": args.voice,
+        "engine": "kokoro", "engine_version": package_version("kokoro"), "variant_id": args.variant,
+        "script_sha256": hashlib.sha256(text.encode("utf-8")).hexdigest(),
+        "language": language, "voice_id": args.voice,
         "speed": args.speed, "device": "cpu", "sample_rate": 24000,
         "duration_seconds": round(duration, 3), "output": str(args.output),
     }
