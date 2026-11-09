@@ -1,0 +1,11 @@
+{
+  "video": {"width": 1080, "height": 1920, "fps": 30, "aspect_ratio": "9:16", "duration_source": "approved_voiceover_timing"},
+  "variants": {"count": 2, "distinct_hooks": true, "allow_script_deltas": true, "require_approval": true},
+  "captions": {"mode": "hybrid", "kinetic_for": ["hook", "emphasis"], "sentence_captions_for_supporting_dialogue": true},
+  "editing": {"mode": "adaptive", "hyperframing": true, "high_energy_hooks": true, "calmer_explanations": true, "emotional_beats": true},
+  "audio": {"voiceover_priority": true, "bgm_ducking_db": -18, "prevent_clipping": true},
+  "models": {"tts": "kokoro", "stt": "openai-whisper", "renderer": "hyperframes", "media": "ffmpeg", "downloader": "yt-dlp"},
+  "quality_gates": ["resolution", "fps", "duration", "audio_video_sync", "caption_spelling", "caption_timing", "black_frames", "missing_assets", "audio_clipping", "mp4_decode"],
+  "delivery": {"attach_to_github_issue": true, "provide_chat_download_links": true},
+  "cost_policy": {"paid_apis_required": false, "external_gpu_required": false, "github_actions_quotas_apply": true}
+}
