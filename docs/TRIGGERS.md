@@ -23,6 +23,18 @@ The workflow still supports `workflow_dispatch` from the Actions page.
 
 Workflow: [Media toolchain check](../.github/workflows/media-toolchain-check.yml)
 
+## Generate approved voiceovers from chat
+
+After the campaign JSON contains two non-empty approved scripts and `script.approved_by_user=true`, comment on [automation issue #1](https://github.com/zaidaslamonline-dev/script-to-mp4/issues/1):
+
+```
+/generate-voiceover campaign-id
+```
+
+The workflow uses Kokoro on a CPU runner, generates both WAV files, commits the audio and metadata under `campaigns/<campaign-id>/voiceovers/`, and posts direct file links back to issue #1. The campaign language defaults to `en-us`; set `language` to `hi` for Hindi. A campaign-level `voice_profile.voice_id` can override the default voice. Gujarati remains unsupported by this Kokoro workflow.
+
+Voiceover generation does not approve the audio. Listen to both files and explicitly approve them in the campaign record before storyboard production.
+
 ## Render an approved campaign from chat
 
 Comment on [automation issue #1](https://github.com/zaidaslamonline-dev/script-to-mp4/issues/1):
@@ -39,6 +51,7 @@ After installing and authenticating GitHub CLI:
 
 ```bash
 bash scripts/trigger.sh media-check
+bash scripts/trigger.sh generate-voiceover campaign-id
 bash scripts/trigger.sh render-approved campaign-id
 ```
 
