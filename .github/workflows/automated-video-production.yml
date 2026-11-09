@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'content/voiceover.wav'
       - 'content/voiceover.mp3'
+      - 'content/voiceover.wav'
       - 'content/script.txt'
       - 'assets/**'
       - 'scripts/**'
@@ -30,8 +30,8 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
           python -m pip install openai-whisper
-      - name: Normalize uploaded MP3 when WAV is not present
-        if: ${{ !hashFiles('content/voiceover.wav') && hashFiles('content/voiceover.mp3') }}
+      - name: Normalize latest supplied MP3 to production WAV
+        if: ${{ hashFiles('content/voiceover.mp3') != '' }}
         run: |
           mkdir -p content
           ffmpeg -v error -y -i content/voiceover.mp3 -map 0:a:0 -ar 48000 -ac 1 -c:a pcm_s16le content/voiceover.wav
@@ -63,7 +63,7 @@ jobs:
         with:
           name: voiceover-and-audio-${{ github.run_number }}
           path: |
-            content/voiceover.*
+            content/voiceover.mp3
             production/voiceover/
             production/voiceover-report.json
             production/audio/final-mix.wav
