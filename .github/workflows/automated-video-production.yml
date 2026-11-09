@@ -1,0 +1,65 @@
+name: Automated video production
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'content/voiceover.wav'
+      - 'content/script.txt'
+      - 'assets/**'
+      - 'scripts/**'
+      - '.github/workflows/automated-video-production.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: automated-video-production-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  produce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install FFmpeg and Python audio tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install openai-whisper
+      - name: Select supplied voiceover or TTS fallback
+        id: audio
+        env:
+          TTS_FALLBACK_COMMAND: ${{ secrets.TTS_FALLBACK_COMMAND }}
+        run: |
+          python scripts/select_voiceover.py
+          echo "source=$(python -c 'import json; print(json.load(open("production/voiceover-report.json"))["audio_source"])')" >> "$GITHUB_OUTPUT"
+          echo "duration=$(python -c 'import json; print(json.load(open("production/voiceover-report.json"))["duration_seconds"])')" >> "$GITHUB_OUTPUT"
+      - name: Generate subtitles from the selected narration
+        run: |
+          whisper production/voiceover/voiceover-production.wav --model small --output_format srt --output_dir production/subtitles --fp16 False
+      - name: Mix narration with licensed background music when provided
+        run: |
+          mkdir -p production/audio
+          if [ -f assets/background-music.wav ]; then
+            python scripts/mix_audio.py --voiceover production/voiceover/voiceover-production.wav --bgm assets/background-music.wav --asset-id "${{ vars.BGM_ASSET_ID }}" --output production/audio/final-mix.wav
+          else
+            python scripts/mix_audio.py --voiceover production/voiceover/voiceover-production.wav --output production/audio/final-mix.wav
+          fi
+      - name: Verify final audio mix
+        run: |
+          ffmpeg -v error -i production/audio/final-mix.wav -f null -
+          ffprobe -v error -show_entries format=duration:stream=sample_rate,channels -of json production/audio/final-mix.wav
+      - name: Upload original/source, production mix, subtitles and provenance
+        uses: actions/upload-artifact@v4
+        with:
+          name: voiceover-and-audio-${{ github.run_number }}
+          path: |
+            production/voiceover/
+            production/voiceover-report.json
+            production/audio/final-mix.wav
+            production/subtitles/
+          if-no-files-found: error
+          retention-days: 30
