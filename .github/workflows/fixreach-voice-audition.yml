@@ -20,7 +20,7 @@ jobs:
         github.event.comment.body == '/run-fixreach-voice-audition'
       )
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -33,11 +33,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
           python -m pip install -r requirements-tts.txt numpy
-      - name: Generate two distinct character auditions
+      - name: Generate 16 character voice auditions
         run: python scripts/generate_voice_preview.py --output-dir voice-preview
       - uses: actions/upload-artifact@v4
         with:
-          name: fixreach-kokoro-voice-audition
+          name: fixreach-16-voice-options
           path: voice-preview/
           if-no-files-found: error
           retention-days: 14
