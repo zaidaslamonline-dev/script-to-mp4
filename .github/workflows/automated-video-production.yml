@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'content/voiceover.wav'
+      - 'content/voiceover.mp3'
       - 'content/script.txt'
       - 'assets/**'
       - 'scripts/**'
@@ -29,6 +30,11 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
           python -m pip install openai-whisper
+      - name: Normalize uploaded MP3 when WAV is not present
+        if: ${{ !hashFiles('content/voiceover.wav') && hashFiles('content/voiceover.mp3') }}
+        run: |
+          mkdir -p content
+          ffmpeg -v error -y -i content/voiceover.mp3 -map 0:a:0 -ar 48000 -ac 1 -c:a pcm_s16le content/voiceover.wav
       - name: Select supplied voiceover or TTS fallback
         id: audio
         env:
@@ -52,11 +58,12 @@ jobs:
         run: |
           ffmpeg -v error -i production/audio/final-mix.wav -f null -
           ffprobe -v error -show_entries format=duration:stream=sample_rate,channels -of json production/audio/final-mix.wav
-      - name: Upload original/source, production mix, subtitles and provenance
+      - name: Upload source, production mix, subtitles and provenance
         uses: actions/upload-artifact@v4
         with:
           name: voiceover-and-audio-${{ github.run_number }}
           path: |
+            content/voiceover.*
             production/voiceover/
             production/voiceover-report.json
             production/audio/final-mix.wav
