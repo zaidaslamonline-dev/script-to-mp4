@@ -3,6 +3,7 @@
 import argparse
 import html
 import json
+import hashlib
 import shutil
 import subprocess
 import sys
@@ -33,6 +34,15 @@ def main():
     approved_variants = {str(v.get("variant_id", "")).upper(): v for v in campaign.get("variants", [])}
     if variant_id not in approved_variants or not approved_variants[variant_id].get("approved"):
         sys.exit(f"BLOCKED: variant {variant_id or '(missing)'} is not script-approved.")
+    approved_text = str(approved_variants[variant_id].get("script_text", "")).strip()
+    if not approved_text:
+        sys.exit(f"BLOCKED: variant {variant_id} has no approved script_text.")
+    metadata_path = args.voiceover.with_suffix(".json")
+    if metadata_path.is_file():
+        voice_meta = load_json(metadata_path)
+        expected_hash = hashlib.sha256(approved_text.encode("utf-8")).hexdigest()
+        if voice_meta.get("variant_id") != variant_id or voice_meta.get("script_sha256") != expected_hash:
+            sys.exit("BLOCKED: voiceover provenance does not match this approved variant script.")
     scenes = board.get("scenes")
     if not isinstance(scenes, list) or not scenes:
         p.error("Storyboard needs a non-empty scenes array.")
