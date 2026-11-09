@@ -18,6 +18,8 @@ def main():
     p.add_argument("--storyboard", type=Path, required=True)
     p.add_argument("--voiceover", type=Path, required=True)
     p.add_argument("--captions", type=Path, help="Optional Whisper captions JSON")
+    p.add_argument("--bgm", type=Path, help="Optional commercially cleared background music file")
+    p.add_argument("--bgm-asset-id", help="Matching approved asset_id from assets/asset-manifest.json")
     p.add_argument("--output-dir", type=Path, required=True)
     args = p.parse_args()
 
@@ -67,6 +69,12 @@ def main():
     assets = args.output_dir / "assets"
     assets.mkdir(exist_ok=True)
     shutil.copy2(args.voiceover, assets / "voiceover.wav")
+    mix_command = [sys.executable, str(Path(__file__).with_name("mix_audio.py")), "--voiceover", str(args.voiceover.resolve()), "--output", str((assets / "program_mix.wav").resolve())]
+    if args.bgm:
+        if not args.bgm_asset_id:
+            p.error("--bgm-asset-id is required when --bgm is supplied.")
+        mix_command.extend(["--bgm", str(args.bgm.resolve()), "--asset-id", args.bgm_asset_id])
+    subprocess.run(mix_command, check=True)
 
     brand_path = Path("clients") / campaign["client_id"] / "brand.json"
     brand = load_json(brand_path) if brand_path.is_file() else {}
@@ -110,14 +118,14 @@ def main():
 .caption span{{max-width:940px;padding:18px 30px;border-radius:18px;background:rgba(0,0,0,.78);font-size:48px;line-height:1.12;font-weight:800;color:#fff;text-shadow:none}}
 </style></head><body>
 <div id="root" data-composition-id="root" data-width="1080" data-height="1920" data-duration="{duration:.3f}">
-<audio id="voiceover" data-start="0" data-duration="{duration:.3f}" data-track-index="0" src="./assets/voiceover.wav"></audio>
+<audio id="voiceover" data-start="0" data-duration="{duration:.3f}" data-track-index="0" src="./assets/program_mix.wav"></audio>
 {markup}
 {caption_html}
 </div></body></html>'''
     (args.output_dir / "index.html").write_text(document, encoding="utf-8")
     manifest = {
         "campaign_id": campaign.get("campaign_id"), "variant_id": variant_id,
-        "duration_seconds": duration, "voiceover": "assets/voiceover.wav",
+        "duration_seconds": duration, "voiceover": "assets/voiceover.wav", "program_audio": "assets/program_mix.wav", "bgm_asset_id": args.bgm_asset_id,
         "scene_count": len(normalized), "status": "storyboard_draft",
         "note": "HTML preview only; rendering remains blocked until storyboard and render approvals are recorded."
     }
