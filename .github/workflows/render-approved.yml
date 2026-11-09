@@ -12,7 +12,7 @@ on:
 
 permissions:
   contents: read
-  issues: read
+  issues: write
 
 jobs:
   render:
@@ -76,3 +76,11 @@ jobs:
           path: renders/${{ steps.campaign.outputs.campaign_id }}/*.mp4
           if-no-files-found: error
           retention-days: 14
+
+      - name: Report final video artifacts
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment 1 --repo "${{ github.repository }}" --body "Both approved MP4 renders passed FFprobe QA for campaign `$CAMPAIGN_ID`. Download the two-video artifact from the [workflow run]($RUN_URL). Artifact retention: 14 days."
