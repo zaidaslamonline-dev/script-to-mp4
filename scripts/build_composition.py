@@ -4,6 +4,7 @@ import argparse
 import html
 import json
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -32,9 +33,15 @@ def main():
     if variant_id not in approved_variants or not approved_variants[variant_id].get("approved"):
         sys.exit(f"BLOCKED: variant {variant_id or '(missing)'} is not script-approved.")
     scenes = board.get("scenes")
-    duration = float(board.get("duration_seconds", 0))
-    if not isinstance(scenes, list) or not scenes or duration <= 0:
-        p.error("Storyboard needs duration_seconds > 0 and a non-empty scenes array.")
+    if not isinstance(scenes, list) or not scenes:
+        p.error("Storyboard needs a non-empty scenes array.")
+    probe = subprocess.check_output([
+        "ffprobe", "-v", "error", "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1", str(args.voiceover)
+    ], text=True)
+    duration = float(probe.strip())
+    if duration <= 0:
+        p.error("Voiceover has invalid duration.")
 
     normalized = []
     for index, scene in enumerate(scenes):
