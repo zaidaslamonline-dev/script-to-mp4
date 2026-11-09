@@ -9,6 +9,6 @@
     "render:variant": "hyperframes render --fps 30 --workers 1 --quality standard"
   },
   "devDependencies": {
-    "hyperframes": "latest"
+    "hyperframes": "0.9.26"
   }
 }
