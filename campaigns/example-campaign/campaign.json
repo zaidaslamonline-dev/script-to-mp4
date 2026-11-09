@@ -6,10 +6,33 @@
   "audience": null,
   "offer": null,
   "core_message": null,
-  "script": {"status": "draft", "approved_by_user": false, "approved_at": null, "source": "chat-curated"},
+  "script": {
+    "status": "draft",
+    "approved_by_user": false,
+    "approved_at": null,
+    "source": "chat-curated"
+  },
   "variants": [
-    {"variant_id": "A", "hook": null, "script_delta": null, "storyboard_status": "not_started", "approved": false},
-    {"variant_id": "B", "hook": null, "script_delta": null, "storyboard_status": "not_started", "approved": false}
+    {
+      "variant_id": "A",
+      "hook": null,
+      "script_delta": null,
+      "storyboard_status": "not_started",
+      "approved": false,
+      "script_text": ""
+    },
+    {
+      "variant_id": "B",
+      "hook": null,
+      "script_delta": null,
+      "storyboard_status": "not_started",
+      "approved": false,
+      "script_text": ""
+    }
   ],
-  "production": {"voiceover_approved": false, "storyboards_approved": false, "render_approved": false}
+  "production": {
+    "voiceover_approved": false,
+    "storyboards_approved": false,
+    "render_approved": false
+  }
 }
