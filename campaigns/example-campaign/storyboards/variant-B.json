@@ -1,0 +1,24 @@
+{
+  "variant_id": "B",
+  "scenes": [
+    {
+      "text": "Variant B opening hook",
+      "start": 0.0,
+      "end": 2.4,
+      "visual_description": "A distinct opening visual that supports the alternate hook."
+    },
+    {
+      "text": "Supporting proof or product demonstration",
+      "start": 2.4,
+      "end": 5.8,
+      "visual_description": "Show the product benefit with a clear, energetic visual beat."
+    },
+    {
+      "text": "Offer and call to action",
+      "start": 5.8,
+      "end": 8.2,
+      "visual_description": "Finish with brand identity and a direct call to action."
+    }
+  ],
+  "notes": "Draft template only. Replace all copy and timing after the approved voiceover is available. Final timing must fit the measured narration duration."
+}
