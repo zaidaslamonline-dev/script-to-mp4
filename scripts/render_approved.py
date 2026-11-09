@@ -31,10 +31,10 @@ def main():
         subprocess.run(
             ["npx", "--yes", "hyperframes", "render", "--composition", str(source.resolve()),
              "--output", str(out.resolve()), "--fps", "30", "--quality", "standard"],
-            check=True,
+            check=True, cwd=source.parent,
         )
         subprocess.run(
-            [sys.executable, "scripts/qa_ffprobe.py", str(out), "--width", "1080", "--height", "1920", "--fps", "30"],
+            [sys.executable, str(Path(__file__).with_name("qa_ffprobe.py")), str(out), "--width", "1080", "--height", "1920", "--fps", "30"],
             check=True,
         )
     print(f"Rendered and structurally validated {len(variants)} variants in {args.output_dir}")
