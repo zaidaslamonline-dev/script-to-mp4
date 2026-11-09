@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FixReach Video Production</title>
+<style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,sans-serif;background:#101114;color:#f5f5f5}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+main{width:min(100%,620px);background:#1a1c21;border:1px solid #333741;border-radius:22px;padding:30px;box-shadow:0 24px 80px #0007}
+.kicker{color:#9da7b8;font-size:12px;letter-spacing:.15em;text-transform:uppercase}h1{font-size:clamp(28px,6vw,42px);line-height:1.05;margin:12px 0}p{color:#b9bfca;line-height:1.6}
+.drop{display:block;margin:24px 0;padding:30px 18px;border:1px dashed #657086;border-radius:16px;text-align:center;background:#20232a;cursor:pointer}
+.drop strong{display:block;margin-bottom:8px}.drop input{display:block;margin:18px auto 0;max-width:100%}
+button{border:0;border-radius:12px;padding:14px 20px;background:#f5f5f5;color:#111;font-weight:700;font-size:15px;cursor:pointer;width:100%}button:disabled{opacity:.5;cursor:wait}
+#status{margin-top:18px;min-height:28px;font-size:14px}.fine{font-size:12px;color:#8e96a5}.pill{display:inline-block;border:1px solid #444b58;border-radius:99px;padding:5px 10px;font-size:12px;color:#b9c1ce}
+</style>
+</head>
+<body><main>
+<div class="kicker">Private production portal · FixReach</div>
+<h1>Your voice. Your video. One place.</h1>
+<p>Upload the supplied narration. It stays the source of truth—AI speech is only a fallback when no recording is supplied.</p>
+<span class="pill">MP3 or WAV · up to 3 MB</span>
+<label class="drop"><strong>Choose your voiceover</strong><span class="fine">MP3 is recommended for faster upload</span><input id="file" type="file" accept=".mp3,.wav,audio/mpeg,audio/wav"></label>
+<button id="send" disabled>Send to production</button>
+<div id="status" role="status" aria-live="polite"></div>
+<p class="fine">The portal sends the file to your private production repository. The original upload is retained; the pipeline makes a separate normalized working copy.</p>
+</main>
+<script>
+const file=document.querySelector('#file'),send=document.querySelector('#send'),status=document.querySelector('#status');
+file.addEventListener('change',()=>{const f=file.files[0];send.disabled=!f;status.textContent=f?f.name+' · '+(f.size/1024/1024).toFixed(2)+' MB':''});
+send.addEventListener('click',async()=>{const f=file.files[0];if(!f)return;send.disabled=true;status.textContent='Uploading voiceover…';try{const type=f.type||(/\.wav$/i.test(f.name)?'audio/wav':'audio/mpeg');const r=await fetch('/api/upload',{method:'POST',headers:{'Content-Type':type},body:f});const data=await r.json();if(!r.ok)throw new Error(data.error||'Upload failed');status.textContent='Received. Production workflow triggered from '+data.path+'.';}catch(e){status.textContent='Not sent: '+e.message;send.disabled=false;}});
+</script></body></html>
