@@ -26,13 +26,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install CPU PyTorch and Parler-TTS
+      - name: Install CPU PyTorch, torchaudio and Parler-TTS
         run: |
           sudo apt-get update
           sudo apt-get install -y espeak-ng libsndfile1
           python -m pip install --upgrade pip
-          python -m pip install torch --index-url https://download.pytorch.org/whl/cpu
+          python -m pip install torch torchaudio --index-url https://download.pytorch.org/whl/cpu
           python -m pip install parler-tts transformers accelerate soundfile numpy
+          python -m pip install --force-reinstall --no-deps torchaudio --index-url https://download.pytorch.org/whl/cpu
+          python -c "import torch, torchaudio; print('torch', torch.__version__, 'torchaudio', torchaudio.__version__); print('cuda', torch.cuda.is_available())"
       - name: Generate Sid and Lala Bhai auditions
         run: python scripts/audition_indic_parler.py
       - uses: actions/upload-artifact@v4
