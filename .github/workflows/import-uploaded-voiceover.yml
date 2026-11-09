@@ -1,0 +1,90 @@
+name: Import uploaded voiceover
+
+on:
+  workflow_dispatch:
+    inputs:
+      campaign_id:
+        description: Campaign folder name under campaigns/
+        required: true
+        type: string
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: import-voiceover-${{ github.event.comment.id || inputs.campaign_id || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (
+        github.event_name == 'issue_comment' &&
+        github.event.issue.number == 1 &&
+        github.event.issue.pull_request == null &&
+        github.event.comment.user.login == 'zaidaslamonline-dev' &&
+        startsWith(github.event.comment.body, '/import-voiceover ')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+      - name: Validate command
+        id: campaign
+        env:
+          ISSUE_COMMENT: ${{ github.event.comment.body }}
+          DISPATCH_CAMPAIGN_ID: ${{ inputs.campaign_id }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          python - <<'PY'
+          import os, re
+          value = os.environ.get("DISPATCH_CAMPAIGN_ID", "").strip()
+          if os.environ.get("EVENT_NAME") == "issue_comment":
+              match = re.fullmatch(r"/import-voiceover ([a-z0-9][a-z0-9-]*)", os.environ.get("ISSUE_COMMENT", "").strip())
+              if not match:
+                  raise SystemExit("Use: /import-voiceover campaign-id")
+              value = match.group(1)
+          if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", value):
+              raise SystemExit("Invalid campaign ID.")
+          if not os.path.isfile(f"campaigns/{value}/campaign.json"):
+              raise SystemExit(f"Campaign not found: campaigns/{value}/campaign.json")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as out:
+              out.write(f"campaign_id={value}\\n")
+          PY
+      - name: Normalize and validate uploaded audio
+        run: |
+          python scripts/import_uploaded_voiceover.py \
+            --campaign "campaigns/${{ steps.campaign.outputs.campaign_id }}/campaign.json" \
+            --voiceover-dir "campaigns/${{ steps.campaign.outputs.campaign_id }}/voiceovers"
+      - name: Commit normalized voiceovers and provenance
+        env:
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-A.json" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.wav" "campaigns/$CAMPAIGN_ID/voiceovers/variant-B.json"
+          git commit -m "Import uploaded voiceovers: $CAMPAIGN_ID"
+          git push origin HEAD:main
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.campaign.outputs.campaign_id }}-uploaded-voiceovers
+          path: campaigns/${{ steps.campaign.outputs.campaign_id }}/voiceovers/variant-*
+          if-no-files-found: error
+          retention-days: 30
+      - name: Report import
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CAMPAIGN_ID: ${{ steps.campaign.outputs.campaign_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh issue comment 1 --repo "${{ github.repository }}" --body "Uploaded voiceover imported and normalized for campaign `$CAMPAIGN_ID`. [Variant A](https://github.com/${{ github.repository }}/blob/main/campaigns/$CAMPAIGN_ID/voiceovers/variant-A.wav) · [Variant B](https://github.com/${{ github.repository }}/blob/main/campaigns/$CAMPAIGN_ID/voiceovers/variant-B.wav). [Workflow run]($RUN_URL). Listen and explicitly approve before storyboard production."
