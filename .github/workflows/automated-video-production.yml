@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'content/voiceover.mp3'
+      - 'content/*.mp3'
       - 'content/voiceover.wav'
       - 'content/script.txt'
       - 'assets/**'
@@ -30,11 +30,19 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
           python -m pip install openai-whisper
-      - name: Normalize latest supplied MP3 to production WAV
-        if: ${{ hashFiles('content/voiceover.mp3') != '' }}
+      - name: Normalize the uploaded MP3 to production WAV
+        if: ${{ hashFiles('content/*.mp3') != '' }}
         run: |
-          mkdir -p content
-          ffmpeg -v error -y -i content/voiceover.mp3 -map 0:a:0 -ar 48000 -ac 1 -c:a pcm_s16le content/voiceover.wav
+          mapfile -t mp3_files < <(find content -maxdepth 1 -type f -iname '*.mp3' | sort)
+          if [ "${#mp3_files[@]}" -eq 0 ]; then
+            echo "No MP3 file found in content/."
+            exit 1
+          fi
+          if [ "${#mp3_files[@]}" -gt 1 ]; then
+            printf 'Multiple MP3 files found; keep only the intended voiceover in content/:\n%s\n' "${mp3_files[@]}"
+            exit 1
+          fi
+          ffmpeg -v error -y -i "${mp3_files[0]}" -map 0:a:0 -ar 48000 -ac 1 -c:a pcm_s16le content/voiceover.wav
       - name: Select supplied voiceover or TTS fallback
         id: audio
         env:
@@ -63,7 +71,7 @@ jobs:
         with:
           name: voiceover-and-audio-${{ github.run_number }}
           path: |
-            content/voiceover.mp3
+            content/*.mp3
             production/voiceover/
             production/voiceover-report.json
             production/audio/final-mix.wav
