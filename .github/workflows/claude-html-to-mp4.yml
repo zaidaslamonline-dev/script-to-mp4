@@ -1,0 +1,38 @@
+name: Render Claude FixReach HTML to MP4
+on:
+  push:
+    paths:
+      - "content/claude-fixreach.html"
+      - "scripts/render_claude_html.py"
+      - ".github/workflows/claude-html-to-mp4.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install rendering dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip playwright
+          python -m playwright install --with-deps chromium
+      - name: Render HTML frames and mux original voiceover
+        run: python scripts/render_claude_html.py
+      - name: Upload MP4
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixreach-claude-mp4
+          path: renders/claude-fixreach/FixReach-Claude.mp4
+          if-no-files-found: error
+          retention-days: 30
