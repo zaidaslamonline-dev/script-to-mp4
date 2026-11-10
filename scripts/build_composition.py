@@ -8,6 +8,8 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from romanize_captions import romanizer
 
 def load_json(path):
     return json.loads(path.read_text(encoding="utf-8"))
