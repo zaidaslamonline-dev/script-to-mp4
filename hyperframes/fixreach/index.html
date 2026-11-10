@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=1080,height=1920,initial-scale=1">
+<title>FixReach — Six-scene campaign</title>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#090c1b;color:#fff;font-family:Arial,sans-serif}
+#film{position:relative;width:1080px;height:1920px;background:radial-gradient(ellipse at 70% 18%,#273d52,#090c1b 58%)}
+.scene{position:absolute;inset:0;opacity:0;overflow:hidden;background:linear-gradient(145deg,#101a2e,#080b18)}
+.scene:before{content:"";position:absolute;inset:-20%;background:repeating-linear-gradient(115deg,transparent 0 90px,#ffffff08 92px 95px);animation:drift 12s linear infinite}
+@keyframes drift{to{transform:translateX(180px)}}
+.brand{position:absolute;top:62px;left:64px;font-size:27px;font-weight:900;letter-spacing:4px;color:#d7ff48}
+.counter{position:absolute;right:65px;top:62px;font-size:25px;color:#ffffffaa}
+h1{position:absolute;top:225px;left:60px;right:60px;margin:0;text-align:center;font-size:68px;line-height:1.05;font-weight:1000;text-transform:uppercase;text-shadow:0 8px 25px #000}
+.kicker{position:absolute;top:405px;left:70px;right:70px;text-align:center;color:var(--accent);font-size:30px;font-weight:900;letter-spacing:1px}
+.characters{position:absolute;top:520px;left:40px;right:40px;height:630px;display:flex;justify-content:center;align-items:flex-end;gap:20px}
+.characters img{max-height:610px;max-width:48%;object-fit:contain;filter:drop-shadow(0 22px 25px #0009);transform-origin:50% 100%}
+.cards{position:absolute;left:75px;right:75px;top:1210px;display:flex;flex-direction:column;gap:22px}
+.card{padding:24px 30px;border:2px solid var(--accent);border-radius:22px;background:#050b19e8;font-size:34px;font-weight:900;letter-spacing:1px;box-shadow:0 12px 40px #0007}
+.caption{position:absolute;left:60px;right:60px;bottom:145px;text-align:center;background:#000d;border-radius:16px;padding:18px 25px;font-size:30px;font-weight:800;min-height:70px}
+.progress{position:absolute;bottom:55px;left:60px;right:60px;height:10px;background:#ffffff33;border-radius:10px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:var(--accent)}
+</style></head><body><div id="film" data-composition-id="fixreach" data-width="1080" data-height="1920" data-fps="30">
+<div class="scene" id="s1" data-start="0" data-duration="12" data-track-index="0" style="--accent:#ff5b55"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">01 / 06</div><h1>Enquiries are coming in…</h1><div class="kicker">BUT WHERE ARE THE BOOKINGS?</div><div class="characters"><img src="../../assets/characters/LALA-13_Frustrated-Hand-on-Forehead.png"></div><div class="cards"><div class="card">MISSED CALLS</div><div class="card">EMPTY CALENDAR</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<div class="scene" id="s2" data-start="12" data-duration="13" data-track-index="0" style="--accent:#ff9b3d"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">02 / 06</div><h1>Phone garam. Business thanda.</h1><div class="kicker">PRICE ONLY · OUT OF AREA · MAYBE LATER</div><div class="characters"><img src="../../assets/characters/LALA-08_Holding-Smartphone-Left-Hand-Gesture.png"><img src="../../assets/characters/SID-20_Surprised-Open-Mouth.png"></div><div class="cards"><div class="card">PRICE ONLY?</div><div class="card">OUT OF SERVICE AREA?</div><div class="card">CALL BACK LATER?</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<div class="scene" id="s3" data-start="25" data-duration="14" data-track-index="0" style="--accent:#d7ff48"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">03 / 06</div><h1>It's not about more leads.</h1><div class="kicker">IT'S ABOUT BETTER-QUALIFIED ENQUIRIES.</div><div class="characters"><img src="../../assets/characters/LALA-09_Asking-Question-Both-Palms-Up.png"><img src="../../assets/characters/SID-17_Emphasising-Point-Speaking.png"></div><div class="cards"><div class="card">QUANTITY ↓</div><div class="card">QUALITY ↑</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<div class="scene" id="s4" data-start="39" data-duration="26" data-track-index="0" style="--accent:#50e6c2"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">04 / 06</div><h1>FixReach helps you focus</h1><div class="kicker">THREE SIMPLE QUALIFYING QUESTIONS</div><div class="characters"><img src="../../assets/characters/LALA-11_Making-Point-Index-Finger-Raised.png"><img src="../../assets/characters/SID-05_Explaining-Palm-Up-Mouth-Open.png"></div><div class="cards"><div class="card">01 · WHAT'S THE PROBLEM?</div><div class="card">02 · WHERE'S THE LOCATION?</div><div class="card">03 · WHEN IS SERVICE NEEDED?</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<div class="scene" id="s5" data-start="65" data-duration="13" data-track-index="0" style="--accent:#d7ff48"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">05 / 06</div><h1>Now you know who needs help.</h1><div class="kicker">PLAN THE RIGHT HOME-SERVICE VISIT.</div><div class="characters"><img src="../../assets/characters/LALA-17_Thumbs-Up-Approval.png"><img src="../../assets/characters/SID-24_Celebrating-Both-Fists-Raised.png"></div><div class="cards"><div class="card">CLEARER CUSTOMER NEED</div><div class="card">BETTER VISIT PLANNING</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<div class="scene" id="s6" data-start="78" data-duration="14.84" data-track-index="0" style="--accent:#50e6c2"><div class="brand">FIXREACH / LOCAL SERVICE GROWTH</div><div class="counter">06 / 06</div><h1>Repair business owners</h1><div class="kicker">WANT BETTER-QUALIFIED LEADS?</div><div class="characters"><img src="../../assets/characters/LALA-24_Counting-and-Holding-Cash.png"><img src="../../assets/characters/SID-07_Pointing-Right-Mouth-Open.png"></div><div class="cards"><div class="card">FIXREACH</div><div class="card">COMMENT “LEADS”</div><div class="card">GET YOUR FREE CAMPAIGN AUDIT</div></div><div class="caption"></div><div class="progress"><i></i></div></div>
+<audio id="voice" data-start="0" data-duration="92.84" data-track-index="8" src="../../production/voiceover/voiceover.wav"></audio>
+<audio id="music" data-start="0" data-duration="92.84" data-track-index="7" data-volume="0.16" data-fade-in="2" data-fade-out="3" src="../../assets/audio/bgm/background.ogg"></audio>
+<audio id="sfx1" data-start="0.7" data-track-index="9" data-volume="0.38" src="../../assets/audio/sfx/transition.ogg"></audio>
+<audio id="sfx2" data-start="12.2" data-track-index="9" data-volume="0.32" src="../../assets/audio/sfx/notification.ogg"></audio>
+<audio id="sfx3" data-start="25.2" data-track-index="9" data-volume="0.30" src="../../assets/audio/sfx/pop.ogg"></audio>
+<audio id="sfx4" data-start="39.2" data-track-index="9" data-volume="0.30" src="../../assets/audio/sfx/confirmation.ogg"></audio>
+<audio id="sfx5" data-start="65.2" data-track-index="9" data-volume="0.32" src="../../assets/audio/sfx/confirmation.ogg"></audio>
+<audio id="sfx6" data-start="78.2" data-track-index="9" data-volume="0.38" src="../../assets/audio/sfx/notification.ogg"></audio>
+</div>
+<script>
+const scenes=[...document.querySelectorAll('.scene')];const tl=gsap.timeline({paused:true});
+scenes.forEach((s,i)=>{const start=Number(s.dataset.start),dur=Number(s.dataset.duration);tl.set(s,{opacity:1},start);tl.fromTo(s.querySelector('h1'),{y:70,opacity:0,scale:.94},{y:0,opacity:1,scale:1,duration:.7,ease:'back.out(1.6)'},start+.1);tl.fromTo(s.querySelector('.kicker'),{y:30,opacity:0},{y:0,opacity:1,duration:.5},start+.45);tl.fromTo(s.querySelectorAll('.characters img'),{y:90,opacity:0,scale:.86,rotation:-3},{y:0,opacity:1,scale:1,rotation:0,duration:.65,stagger:.12,ease:'back.out(1.4)'},start+.5);tl.fromTo(s.querySelectorAll('.card'),{x:100,opacity:0},{x:0,opacity:1,duration:.45,stagger:.14,ease:'power3.out'},start+.8);tl.to(s.querySelectorAll('.characters img'),{y:-10,duration:1.2,yoyo:true,repeat:Math.max(0,Math.floor(dur/2)-1),ease:'sine.inOut'},start+1);tl.to(s.querySelector('.progress i'),{width:'100%',duration:dur,ease:'none'},start);tl.to(s,{opacity:0,duration:.18},start+dur-.18);});
+window.__timelines=window.__timelines||{};window.__timelines.fixreach=tl;
+</script></body></html>
