@@ -111,6 +111,28 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
         run: |
           python scripts/discover_footage.py
+      - name: Prepare self-contained HyperFrames project assets
+        run: |
+          mkdir -p hyperframes/fixreach/assets/{characters,audio,voiceover,footage}
+          cp -a assets/characters/. hyperframes/fixreach/assets/characters/
+          cp -a assets/audio/. hyperframes/fixreach/assets/audio/
+          cp production/voiceover/voiceover.wav hyperframes/fixreach/assets/voiceover/voiceover.wav
+          if [ -d production/footage ]; then cp -a production/footage/*.mp4 hyperframes/fixreach/assets/footage/ 2>/dev/null || true; fi
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path("hyperframes/fixreach/index.html")
+          html=p.read_text()
+          def keep_or_remove(match):
+              tag=match.group(0)
+              src=re.search(r'src="([^"]+)"',tag)
+              if src and not (p.parent/src.group(1)).is_file():
+                  print("No downloaded clip for",src.group(1),"- keeping mascot/motion scene without footage")
+                  return ""
+              return tag
+          html=re.sub(r'<video\\b[^>]*></video>',keep_or_remove,html)
+          p.write_text(html)
+          PY
       - name: Render the six-scene FixReach video with HyperFrames
         run: |
           DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 production/voiceover/voiceover.wav)
