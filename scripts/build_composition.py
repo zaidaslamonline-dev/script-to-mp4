@@ -109,7 +109,8 @@ def main():
             f'{image_markup}<span>{html.escape(text)}</span></div>'
         )
     markup = "\n".join(clips)
-    caption_markup = []\n    ur = romanizer() if args.captions else None
+    caption_markup = []
+    ur = romanizer() if args.captions else None
     if args.captions:
         caption_data = load_json(args.captions)
         for index, caption in enumerate(caption_data.get("captions", [])):
