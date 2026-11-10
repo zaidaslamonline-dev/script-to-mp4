@@ -1,0 +1,79 @@
+name: FixReach single-video production render
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fixreach-production-render
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install FFmpeg and renderer dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install Pillow
+      - name: Verify FixReach source assets
+        run: |
+          test -f content/voiceover.wav || test -n "$(find content -maxdepth 1 -type f -iname '*.mp3' -print -quit)"
+          python - <<'PY'
+          from pathlib import Path
+          import sys
+          required = [
+              "LALA-13_Frustrated-Hand-on-Forehead.png",
+              "LALA-08_Holding-Smartphone-Left-Hand-Gesture.png",
+              "LALA-09_Asking-Question-Both-Palms-Up.png",
+              "LALA-11_Making-Point-Index-Finger-Raised.png",
+              "LALA-17_Thumbs-Up-Approval.png",
+              "LALA-24_Counting-and-Holding-Cash.png",
+              "SID-20_Surprised-Open-Mouth.png",
+              "SID-17_Emphasising-Point-Speaking.png",
+              "SID-05_Explaining-Palm-Up-Mouth-Open.png",
+              "SID-24_Celebrating-Both-Fists-Raised.png",
+              "SID-07_Pointing-Right-Mouth-Open.png",
+          ]
+          root = Path("assets/characters")
+          missing = [name for name in required if not (root/name).is_file()]
+          if missing:
+              print("Character assets need to be copied from the supplied fixreach-transparent-characters.zip into assets/characters/:")
+              print("\n".join(missing))
+              sys.exit(2)
+          PY
+      - name: Normalize the approved Viraj voiceover
+        run: |
+          mkdir -p production/voiceover production/subtitles renders/fixreach
+          if [ ! -f content/voiceover.wav ]; then
+            mapfile -t files < <(find content -maxdepth 1 -type f -iname '*.mp3' | sort)
+            if [ "${#files[@]}" -ne 1 ]; then echo "Expected exactly one MP3 in content/"; exit 1; fi
+            ffmpeg -v error -y -i "${files[0]}" -ar 48000 -ac 1 -c:a pcm_s16le content/voiceover.wav
+          fi
+          ffmpeg -v error -y -i content/voiceover.wav -ar 48000 -ac 1 -c:a pcm_s16le production/voiceover/voiceover.wav
+      - name: Generate Hindi-English timed captions
+        run: |
+          python -m pip install openai-whisper
+          whisper production/voiceover/voiceover.wav --model small --language Hindi --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
+      - name: Render the six-scene FixReach video
+        run: |
+          python scripts/render_fixreach.py --voiceover production/voiceover/voiceover.wav --captions production/subtitles/voiceover.srt --duration 92.84 --output renders/fixreach/FixReach.mp4
+      - name: Validate the exported MP4
+        run: |
+          python scripts/qa_ffprobe.py renders/fixreach/FixReach.mp4 --width 1080 --height 1920 --fps 30
+          ffmpeg -v error -i renders/fixreach/FixReach.mp4 -f null -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fixreach-final-render-candidate
+          path: renders/fixreach/FixReach.mp4
+          if-no-files-found: error
+          retention-days: 14
