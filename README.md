@@ -28,3 +28,12 @@ The initial commit is a scaffold. Rendering and media adapters are being built i
 
 ## Cost
 No mandatory paid API is intended. GitHub Actions quotas, CPU-only model speed, model download time, and artifact retention limits still apply.
+
+
+## FixReach single-video render
+
+The dedicated workflow is `.github/workflows/fixreach-render.yml`. It renders one 1080x1920, 30 FPS MP4 from the existing Viraj voiceover, timed Whisper captions, and the supplied transparent Sid/Lala Bhai poses. The deterministic renderer is `scripts/render_fixreach.py`.
+
+To enable the render, place the supplied archive at `content/fixreach-transparent-characters.zip` (or extract its PNGs into `assets/characters/`). The workflow validates the required named poses, normalizes the narration, generates captions, renders the six scenes, and runs FFprobe plus a full FFmpeg decode check. A push of the archive or character files starts the render workflow automatically; it can also be run manually from Actions.
+
+The current storyboard timings are a production draft. The final campaign approval flags remain unchanged; this workflow produces a review candidate and does not silently mark voiceover, storyboard, or final render approvals as granted.
