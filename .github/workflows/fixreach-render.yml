@@ -6,8 +6,6 @@ on:
     paths:
       - 'content/fixreach-transparent-characters.zip'
       - 'assets/characters/**'
-      - 'scripts/render_fixreach.py'
-      - '.github/workflows/fixreach-render.yml'
 
 permissions:
   contents: read
