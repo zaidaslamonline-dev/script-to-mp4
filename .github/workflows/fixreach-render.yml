@@ -130,7 +130,7 @@ jobs:
                   print("No downloaded clip for",src.group(1),"- keeping mascot/motion scene without footage")
                   return ""
               return tag
-          html=re.sub(r'<video\\b[^>]*></video>',keep_or_remove,html)
+          html=re.sub(r'<video\b[^>]*></video>',keep_or_remove,html)
           p.write_text(html)
           PY
       - name: Render the six-scene FixReach video with HyperFrames
