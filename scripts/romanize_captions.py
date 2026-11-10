@@ -14,10 +14,10 @@ TIMING = re.compile(r"^(\d{2}:\d{2}:\d{2},\d{3})\s+-->\s+(\d{2}:\d{2}:\d{2},\d{3
 
 def romanizer():
     try:
-        from uroman import Uroman
+        import uroman as ur
     except ImportError as exc:
         raise SystemExit("Missing uroman. Install it with: python -m pip install uroman") from exc
-    return Uroman()
+    return ur.Uroman()
 
 def main():
     p=argparse.ArgumentParser()
