@@ -6,6 +6,9 @@ on:
     paths:
       - 'content/fixreach-transparent-characters.zip'
       - 'assets/characters/**'
+      - 'hyperframes/**'
+      - 'scripts/**'
+      - '.github/workflows/fixreach-render.yml'
 
 permissions:
   contents: read
@@ -67,6 +70,8 @@ jobs:
       - name: Install HyperFrames and animation runtime
         run: |
           npm install --global hyperframes
+          python -m pip install --upgrade yt-dlp
+          yt-dlp --version
           npx hyperframes doctor
       - name: Fetch sound effects and background music from GitHub repositories
         run: |
@@ -104,13 +109,10 @@ jobs:
         run: |
           DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 production/voiceover/voiceover.wav)
           mkdir -p hyperframes/fixreach
-          cp hyperframes/fixreach/index.html hyperframes/fixreach/index.html
           sed -i "s/92.84/$DURATION/g" hyperframes/fixreach/index.html
           npx hyperframes lint hyperframes/fixreach
           npx hyperframes check hyperframes/fixreach
           npx hyperframes render hyperframes/fixreach --output renders/fixreach/FixReach.mp4 --fps 30
-          ffmpeg -v error -y -i renders/fixreach/FixReach.mp4 -i production/voiceover/voiceover.wav -filter_complex "[0:a]volume=0.16[music];[1:a]volume=1.0[voice];[music][voice]amix=inputs=2:duration=longest:dropout_transition=2,loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 192k -shortest renders/fixreach/FixReach-mix.mp4
-          mv renders/fixreach/FixReach-mix.mp4 renders/fixreach/FixReach.mp4
       - name: Validate the exported MP4
         run: |
           python scripts/qa_ffprobe.py renders/fixreach/FixReach.mp4 --width 1080 --height 1920 --fps 30
