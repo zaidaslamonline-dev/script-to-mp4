@@ -23,9 +23,12 @@ SCENES=[
  {"id":6,"query":"small business owner home services workshop repair team"},
 ]
 def run(cmd):
- return subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+ try:
+  return subprocess.run(cmd,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=180)
+ except subprocess.TimeoutExpired as exc:
+  return subprocess.CompletedProcess(cmd,124,exc.stdout or "",(exc.stderr or "")+"\\nTimed out after 180 seconds")
 def yt_candidates(query):
- p=run(["yt-dlp","--flat-playlist","--dump-single-json","--no-warnings",f"ytsearch8:{query}"])
+ p=run(["yt-dlp","--flat-playlist","--dump-single-json","--no-warnings","--socket-timeout","15","--retries","1",f"ytsearch5:{query}"])
  if p.returncode: return []
  try: data=json.loads(p.stdout)
  except Exception: return []
