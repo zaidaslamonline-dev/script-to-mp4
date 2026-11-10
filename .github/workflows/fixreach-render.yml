@@ -105,6 +105,11 @@ jobs:
         run: |
           python -m pip install openai-whisper
           whisper production/voiceover/voiceover.wav --model small --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
+      - name: Discover and download scene-matched footage automatically
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          python scripts/discover_footage.py
       - name: Render the six-scene FixReach video with HyperFrames
         run: |
           DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 production/voiceover/voiceover.wav)
