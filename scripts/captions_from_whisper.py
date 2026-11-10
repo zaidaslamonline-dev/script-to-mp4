@@ -2,7 +2,8 @@
 """Convert Whisper word timestamps into short, readable caption cards."""
 import argparse
 import json
-from pathlib import Path\nfrom romanize_captions import romanizer
+from pathlib import Path
+from romanize_captions import romanizer
 
 def main():
     p = argparse.ArgumentParser()
@@ -14,7 +15,8 @@ def main():
     if args.max_words < 1 or args.max_chars < 8:
         p.error("--max-words must be positive and --max-chars at least 8")
     data = json.loads(args.transcript.read_text(encoding="utf-8"))
-    ur = romanizer()\n    words = []
+    ur = romanizer()
+    words = []
     for segment in data.get("segments", []):
         for word in segment.get("words", []):
             token = str(word.get("word", "")).strip()
