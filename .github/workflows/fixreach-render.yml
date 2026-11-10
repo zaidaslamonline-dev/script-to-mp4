@@ -23,6 +23,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
       - name: Install FFmpeg and renderer dependencies
         run: |
           sudo apt-get update
@@ -61,6 +64,29 @@ jobs:
               print("\n".join(missing))
               sys.exit(2)
           PY
+      - name: Install HyperFrames and animation runtime
+        run: |
+          npm install --global hyperframes
+          npx hyperframes doctor
+      - name: Fetch sound effects and background music from GitHub repositories
+        run: |
+          mkdir -p /tmp/fixreach-audio assets/audio/sfx assets/audio/bgm
+          git clone --depth 1 https://github.com/GeorgeQLe/assets-sfx-ui.git /tmp/fixreach-audio/ui
+          git clone --depth 1 https://github.com/blancmathis/Super_Bash_Folds.git /tmp/fixreach-audio/music
+          find /tmp/fixreach-audio/ui/assets -type f -iname '*.ogg' | sort > /tmp/sfx-list.txt
+          test -s /tmp/sfx-list.txt
+          cp "$(grep -m1 '/open_' /tmp/sfx-list.txt || grep -m1 '/click_' /tmp/sfx-list.txt)" assets/audio/sfx/transition.ogg
+          cp "$(grep -m1 '/confirmation_' /tmp/sfx-list.txt)" assets/audio/sfx/confirmation.ogg
+          cp "$(grep -m1 '/question_' /tmp/sfx-list.txt)" assets/audio/sfx/notification.ogg
+          cp "$(grep -m1 '/maximize_' /tmp/sfx-list.txt || grep -m1 '/click_' /tmp/sfx-list.txt)" assets/audio/sfx/pop.ogg
+          find /tmp/fixreach-audio/music -type f \( -iname '*.ogg' -o -iname '*.mp3' -o -iname '*.wav' \) | grep -Ei 'music|audio|loop|theme|bgm' | head -20 > /tmp/music-list.txt
+          if [ ! -s /tmp/music-list.txt ]; then
+            echo "No music track found in configured upstream repository"; exit 1
+          fi
+          MUSIC="$(head -n1 /tmp/music-list.txt)"
+          ffmpeg -v error -y -i "$MUSIC" -c:a libvorbis -q:a 5 assets/audio/bgm/background.ogg
+          cp /tmp/fixreach-audio/ui/LICENSES/* assets/audio/ 2>/dev/null || true
+          printf 'SFX source: GeorgeQLe/assets-sfx-ui\\nBGM source: blancmathis/Super_Bash_Folds\\n' > assets/audio/SOURCES.txt
       - name: Normalize the approved Viraj voiceover
         run: |
           mkdir -p production/voiceover production/subtitles renders/fixreach
@@ -74,10 +100,17 @@ jobs:
         run: |
           python -m pip install openai-whisper
           whisper production/voiceover/voiceover.wav --model small --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
-      - name: Render the six-scene FixReach video
+      - name: Render the six-scene FixReach video with HyperFrames
         run: |
           DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 production/voiceover/voiceover.wav)
-          python scripts/render_fixreach.py --voiceover production/voiceover/voiceover.wav --captions production/subtitles/voiceover.srt --duration "$DURATION" --output renders/fixreach/FixReach.mp4
+          mkdir -p hyperframes/fixreach
+          cp hyperframes/fixreach/index.html hyperframes/fixreach/index.html
+          sed -i "s/92.84/$DURATION/g" hyperframes/fixreach/index.html
+          npx hyperframes lint hyperframes/fixreach
+          npx hyperframes check hyperframes/fixreach
+          npx hyperframes render hyperframes/fixreach --output renders/fixreach/FixReach.mp4 --fps 30
+          ffmpeg -v error -y -i renders/fixreach/FixReach.mp4 -i production/voiceover/voiceover.wav -filter_complex "[0:a]volume=0.16[music];[1:a]volume=1.0[voice];[music][voice]amix=inputs=2:duration=longest:dropout_transition=2,loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map 0:v:0 -map "[a]" -c:v copy -c:a aac -b:a 192k -shortest renders/fixreach/FixReach-mix.mp4
+          mv renders/fixreach/FixReach-mix.mp4 renders/fixreach/FixReach.mp4
       - name: Validate the exported MP4
         run: |
           python scripts/qa_ffprobe.py renders/fixreach/FixReach.mp4 --width 1080 --height 1920 --fps 30
