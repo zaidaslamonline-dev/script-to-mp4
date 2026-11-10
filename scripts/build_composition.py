@@ -107,11 +107,11 @@ def main():
             f'{image_markup}<span>{html.escape(text)}</span></div>'
         )
     markup = "\n".join(clips)
-    caption_markup = []
+    caption_markup = []\n    ur = romanizer() if args.captions else None
     if args.captions:
         caption_data = load_json(args.captions)
         for index, caption in enumerate(caption_data.get("captions", [])):
-            text = str(caption.get("text", "")).strip()
+            text = ur.romanize_string(str(caption.get("text", "")).strip())
             start, end = float(caption.get("start", -1)), float(caption.get("end", -1))
             if not text or start < 0 or end <= start or end > duration + 0.05:
                 p.error(f"Invalid caption at index {index}.")
