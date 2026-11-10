@@ -25,6 +25,12 @@ jobs:
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
           python -m pip install Pillow
+      - name: Install the supplied transparent character pack
+        run: |
+          if [ -f content/fixreach-transparent-characters.zip ]; then
+            mkdir -p assets/characters
+            unzip -oq content/fixreach-transparent-characters.zip -d assets/characters
+          fi
       - name: Verify FixReach source assets
         run: |
           test -f content/voiceover.wav || test -n "$(find content -maxdepth 1 -type f -iname '*.mp3' -print -quit)"
@@ -63,10 +69,11 @@ jobs:
       - name: Generate Hindi-English timed captions
         run: |
           python -m pip install openai-whisper
-          whisper production/voiceover/voiceover.wav --model small --language Hindi --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
+          whisper production/voiceover/voiceover.wav --model small --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
       - name: Render the six-scene FixReach video
         run: |
-          python scripts/render_fixreach.py --voiceover production/voiceover/voiceover.wav --captions production/subtitles/voiceover.srt --duration 92.84 --output renders/fixreach/FixReach.mp4
+          DURATION=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 production/voiceover/voiceover.wav)
+          python scripts/render_fixreach.py --voiceover production/voiceover/voiceover.wav --captions production/subtitles/voiceover.srt --duration "$DURATION" --output renders/fixreach/FixReach.mp4
       - name: Validate the exported MP4
         run: |
           python scripts/qa_ffprobe.py renders/fixreach/FixReach.mp4 --width 1080 --height 1920 --fps 30
