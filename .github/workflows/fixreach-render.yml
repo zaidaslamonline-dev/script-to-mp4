@@ -20,7 +20,7 @@ concurrency:
 jobs:
   render:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -104,7 +104,13 @@ jobs:
       - name: Generate Hindi-English timed captions
         run: |
           python -m pip install openai-whisper uroman
-          whisper production/voiceover/voiceover.wav --model medium --task transcribe --condition_on_previous_text False --no_speech_threshold 0.6 --output_format srt --output_dir production/subtitles --fp16 False
+          # Bound CPU transcription time; fall back if the small model stalls.
+          if ! timeout 12m whisper production/voiceover/voiceover.wav --model small --task transcribe --condition_on_previous_text False --no_speech_threshold 0.6 --output_format srt --output_dir production/subtitles --fp16 False; then
+            echo "Small model failed or timed out; retrying with base."
+            rm -f production/subtitles/voiceover.srt
+            timeout 8m whisper production/voiceover/voiceover.wav --model base --task transcribe --condition_on_previous_text False --no_speech_threshold 0.6 --output_format srt --output_dir production/subtitles --fp16 False
+          fi
+          test -s production/subtitles/voiceover.srt
           python scripts/romanize_captions.py production/subtitles/voiceover.srt --output production/subtitles/voiceover.srt --html hyperframes/fixreach/index.html
       - name: Discover and download scene-matched footage automatically
         env:
