@@ -29,7 +29,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade pip
-          python -m pip install openai-whisper
+          python -m pip install openai-whisper uroman
       - name: Normalize the uploaded MP3 to production WAV
         if: ${{ hashFiles('content/*.mp3') != '' }}
         run: |
@@ -53,7 +53,8 @@ jobs:
           echo "duration=$(python -c 'import json; print(json.load(open("production/voiceover-report.json"))["duration_seconds"])')" >> "$GITHUB_OUTPUT"
       - name: Generate subtitles from the selected narration
         run: |
-          whisper production/voiceover/voiceover-production.wav --model small --output_format srt --output_dir production/subtitles --fp16 False
+          whisper production/voiceover/voiceover-production.wav --model small --task transcribe --output_format srt --output_dir production/subtitles --fp16 False
+          python scripts/romanize_captions.py production/subtitles/voiceover-production.srt --output production/subtitles/voiceover-production.srt
       - name: Mix narration with licensed background music when provided
         run: |
           mkdir -p production/audio
