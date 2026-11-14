@@ -9,7 +9,7 @@ The voice IDs are saved in each script's \`voice_profiles\` object so future scr
 - **Sid:** \`hi-IN-AaravNeural\`
 - **Lala Bhai:** \`hi-IN-MadhurNeural\`
 
-Change a voice only as an intentional character-voice decision, then carry the new ID forward to every subsequent script. Both defaults are Hindi male neural voices. They are starting profiles; listen to the first output and confirm the character fit before locking them as the long-term canon.
+Change a voice only as an intentional character-voice decision by editing the shared profile file. Do not add per-script overrides unless you deliberately want a one-off alternate voice. Both defaults are Hindi male neural voices. They are starting profiles; listen to the first output and confirm the character fit before locking them as the long-term canon.
 
 ## Generate
 
