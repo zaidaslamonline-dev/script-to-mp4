@@ -30,6 +30,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install edge-tts
 
+      - name: Diagnose available Hindi Edge TTS voices
+        run: |
+          edge-tts --list-voices | awk -F '\t' '$2 ~ /^hi-IN-/ { print $2, $4 }'
+
       - name: Generate Sid and Lala Bhai narration
         env:
           EDGE_TTS_PROXY: ${{ secrets.EDGE_TTS_PROXY }}
