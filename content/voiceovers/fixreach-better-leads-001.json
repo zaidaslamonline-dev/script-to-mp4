@@ -3,20 +3,6 @@
   "title": "Better-qualified enquiries for repair businesses",
   "language": "hi-IN",
   "turn_pause_ms": 180,
-  "voice_profiles": {
-    "Sid": {
-      "voice": "hi-IN-AaravNeural",
-      "rate": "+2%",
-      "pitch": "+0Hz",
-      "role": "mentor"
-    },
-    "Lala Bhai": {
-      "voice": "hi-IN-MadhurNeural",
-      "rate": "-2%",
-      "pitch": "-1Hz",
-      "role": "repair business owner"
-    }
-  },
   "segments": [
     {
       "speaker": "Lala Bhai",
