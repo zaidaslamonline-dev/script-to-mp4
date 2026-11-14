@@ -53,19 +53,32 @@ def make_silence(path: Path, milliseconds: int) -> None:
         out.setframerate(48000)
         out.writeframes(b"\x00\x00\x00\x00" * frames)
 
-def parse_segment(segment: dict) -> tuple[str, int, str]:
-    raw = segment["text"].strip()
-    delivery = segment.get("delivery", "conversational").lower()
-    leading_pause = 0
-    first = re.match(r"^\[([^\]]+)\]\s*", raw)
-    if first:
-        cue = first.group(1).strip().lower()
-        raw = raw[first.end():]
-        if cue in PAUSE_MS:
-            leading_pause = PAUSE_MS[cue]
-        else:
-            delivery = cue
-    return raw, leading_pause, delivery
+def parse_segment(segment: dict, profile: dict) -> list[tuple[str, str, str]]:
+    """Return ordered ('text'|'pause', value, rate/pitch payload) items.
+
+    All bracketed stage directions are consumed, including mid-sentence changes.
+    """
+    raw = segment.get("tts_text", segment["text"]).strip()
+    current_rate = profile.get("rate", "+0%")
+    current_pitch = profile.get("pitch", "+0Hz")
+    items: list[tuple[str, str, str]] = []
+
+    for part in re.split(r"(\[[^\]]+\])", raw):
+        if not part or not part.strip():
+            continue
+        if part.startswith("[") and part.endswith("]"):
+            cue = part[1:-1].strip().lower()
+            if cue in PAUSE_MS:
+                items.append(("pause", str(PAUSE_MS[cue]), ""))
+                continue
+            for label in (piece.strip() for piece in cue.split(",")):
+                if label in DELIVERY:
+                    current_rate, current_pitch = DELIVERY[label]
+            # Delivery tags are instructions, never spoken words.
+            continue
+        items.append(("text", part.strip(), f"{current_rate}|{current_pitch}"))
+
+    return items
 
 async def synthesize(text: str, voice: str, rate: str, pitch: str, target: Path) -> None:
     communicate = edge_tts.Communicate(
@@ -104,35 +117,19 @@ async def main() -> None:
             raise SystemExit(f"No stable voice profile configured for speaker: {speaker}")
         profile = profiles[speaker]
         voice = profile["voice"]
-        base_rate = profile.get("rate", "+0%")
-        base_pitch = profile.get("pitch", "+0Hz")
-        text, leading_pause, delivery = parse_segment(segment)
-        delivery_rate, delivery_pitch = DELIVERY.get(delivery, ("+0%", "+0Hz"))
-        # Delivery cues are deliberately subtle: Edge TTS does not expose
-        # native acting/emotion controls for these voices.
-        rate = delivery_rate if delivery_rate != "+0%" else base_rate
-        pitch = delivery_pitch if delivery_pitch != "+0Hz" else base_pitch
-
-        if leading_pause:
-            silence = work / f"chunk_{chunk_number:04d}.wav"
-            make_silence(silence, leading_pause)
-            ordered_wavs.append(silence)
-            chunk_number += 1
-
-        parts = re.split(r"(\[(?:pause|slight pause)\])", text, flags=re.IGNORECASE)
+        items = parse_segment(segment, profile)
         spoken_parts = 0
-        for part in parts:
-            cue = part.strip().lower()
-            if not part or not part.strip():
-                continue
-            if cue in PAUSE_MS:
+        delivery_cues = []
+        for kind, value, prosody in items:
+            if kind == "pause":
                 silence = work / f"chunk_{chunk_number:04d}.wav"
-                make_silence(silence, PAUSE_MS[cue])
+                make_silence(silence, int(value))
                 ordered_wavs.append(silence)
                 chunk_number += 1
                 continue
 
-            spoken = part.strip()
+            rate, pitch = prosody.split("|", 1)
+            spoken = value
             mp3_path = work / f"turn_{turn_number:03d}_part_{spoken_parts:02d}.mp3"
             wav_path = work / f"chunk_{chunk_number:04d}.wav"
             await synthesize(spoken, voice, rate, pitch, mp3_path)
@@ -148,7 +145,7 @@ async def main() -> None:
             "turn": turn_number,
             "speaker": speaker,
             "voice": voice,
-            "delivery_cue": delivery,
+            "delivery_cues": [s["text"] for s in items if s[0] == "pause"],
             "text": segment["text"],
         })
 
