@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: fixreach-edge-tts-\${{ github.ref }}
+  group: fixreach-edge-tts
   cancel-in-progress: true
 
 jobs:
@@ -26,7 +26,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
 
       - name: Install Edge TTS and FFmpeg
         run: |
