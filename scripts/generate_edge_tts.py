@@ -94,12 +94,16 @@ async def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--script", required=True, type=Path)
     parser.add_argument("--output-dir", required=True, type=Path)
+    parser.add_argument("--voice-profiles", type=Path, default=Path("config/fixreach_voice_profiles.json"))
     args = parser.parse_args()
 
     if not shutil.which("ffmpeg") or not shutil.which("ffprobe"):
         raise SystemExit("ffmpeg and ffprobe are required.")
     data = json.loads(args.script.read_text(encoding="utf-8"))
-    profiles = data["voice_profiles"]
+    if args.voice_profiles.is_file():
+        profiles = json.loads(args.voice_profiles.read_text(encoding="utf-8"))
+    else:
+        profiles = data.get("voice_profiles", {})
     segments = data["segments"]
     if not segments:
         raise SystemExit("The script contains no dialogue segments.")
