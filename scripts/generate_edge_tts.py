@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -16,6 +17,7 @@ import wave
 from pathlib import Path
 
 import edge_tts
+from edge_tts.exceptions import NoAudioReceived, WebSocketError
 
 PAUSE_MS = {"pause": 650, "slight pause": 320}
 DELIVERY = {
@@ -81,14 +83,46 @@ def parse_segment(segment: dict, profile: dict) -> list[tuple[str, str, str]]:
     return items
 
 async def synthesize(text: str, voice: str, rate: str, pitch: str, target: Path) -> None:
-    communicate = edge_tts.Communicate(
-        text=text,
-        voice=voice,
-        rate=rate,
-        pitch=pitch,
-        volume="+0%",
-    )
-    await communicate.save(str(target))
+    # Edge TTS is an unofficial client of Microsoft's public speech endpoint.
+    # Hosted CI/datacenter IPs can be intermittently refused, so retry cleanly
+    # and support an optional proxy (e.g. a user-managed trusted egress proxy).
+    proxy = os.environ.get("EDGE_TTS_PROXY") or None
+    attempts = 4
+    for attempt in range(1, attempts + 1):
+        target.unlink(missing_ok=True)
+        try:
+            communicate = edge_tts.Communicate(
+                text=text,
+                voice=voice,
+                rate=rate,
+                pitch=pitch,
+                volume="+0%",
+                proxy=proxy,
+            )
+            await communicate.save(str(target))
+            if target.is_file() and target.stat().st_size > 0:
+                return
+            raise NoAudioReceived("Edge TTS returned an empty audio file.")
+        except (NoAudioReceived, WebSocketError) as exc:
+            target.unlink(missing_ok=True)
+            if attempt == attempts:
+                network_hint = (
+                    " A configured EDGE_TTS_PROXY was used; check that proxy."
+                    if proxy else
+                    " GitHub-hosted runners use datacenter IPs, which Edge TTS may reject. "
+                    "Set the EDGE_TTS_PROXY Actions secret or run this workflow on a "
+                    "self-hosted runner using a normal network connection."
+                )
+                raise RuntimeError(
+                    f"Edge TTS failed after {attempts} attempts "
+                    f"(voice={voice}, rate={rate}, pitch={pitch}).{network_hint}"
+                ) from exc
+            delay = attempt * 3
+            print(
+                f"Edge TTS returned no audio for {voice}; "
+                f"retrying in {delay}s ({attempt}/{attempts})."
+            )
+            await asyncio.sleep(delay)
 
 async def main() -> None:
     parser = argparse.ArgumentParser()
