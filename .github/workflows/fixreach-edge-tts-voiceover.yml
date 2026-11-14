@@ -32,7 +32,7 @@ jobs:
 
       - name: Diagnose available Hindi Edge TTS voices
         run: |
-          edge-tts --list-voices | awk -F '\t' '$2 ~ /^hi-IN-/ { print $2, $4 }'
+          edge-tts --list-voices
 
       - name: Generate Sid and Lala Bhai narration
         env:
