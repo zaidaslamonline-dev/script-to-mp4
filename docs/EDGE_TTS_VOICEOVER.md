@@ -1,43 +1,43 @@
-# FixReach Edge TTS voiceover
+# FixReach Gemini TTS voiceover
 
-This branch adds a dedicated Edge TTS voiceover stage to the existing FixReach production repository.
+This branch generates one continuous multi-character voiceover with a single Gemini TTS API request.
 
 ## Stable character voices
 
-The voice IDs are saved in each script's \`voice_profiles\` object so future scripts reuse the same identities:
+Voice IDs are saved in `config/fixreach_voice_profiles.json` and reused across scripts:
 
-- **Sid:** \`hi-IN-AaravNeural\`
-- **Lala Bhai:** \`hi-IN-MadhurNeural\`
+- **Sid:** `Puck` — upbeat; assigned to the youthful mentor.
+- **Lala Bhai:** `Gacrux` — mature; assigned to the repair-business owner.
 
-Change a voice only as an intentional character-voice decision by editing the shared profile file. Do not add per-script overrides unless you deliberately want a one-off alternate voice. Both defaults are Hindi male neural voices. They are starting profiles; listen to the first output and confirm the character fit before locking them as the long-term canon.
+Only change these voice IDs as an intentional character-voice decision. Gemini multi-speaker TTS supports two configured speakers per request, matching the current Sid + Lala Bhai format.
 
 ## Generate
 
-Every push to \`feat/fixreach-edge-tts-voiceover\` runs the workflow. It can also be started manually from Actions.
+Every push to `feat/fixreach-edge-tts-voiceover` runs the workflow. It can also be started manually from Actions.
 
-The workflow reads:
-\`content/voiceovers/fixreach-better-leads-001.json\`
+The workflow reads `content/voiceovers/fixreach-better-leads-001.json` and creates:
 
-It creates:
-- \`voiceover.wav\` — 48 kHz stereo PCM, normalized for post-production
-- \`voiceover.mp3\` — 192 kbps listening copy
-- \`voiceover_manifest.json\` — speaker-to-voice mapping, delivery cues and duration
+- `voiceover.wav` — 48 kHz stereo PCM, normalized for post-production
+- `voiceover.mp3` — 192 kbps listening copy
+- `voiceover_manifest.json` — model, one-request count, speaker-to-voice mapping, delivery cues and duration
 
-Download the \`fixreach-edge-tts-voiceover\` artifact from the completed GitHub Actions run.
+Download the `fixreach-gemini-tts-voiceover` artifact from the completed GitHub Actions run.
 
 ## Script format
 
-Each turn has a \`speaker\` and \`text\`. Supported speaker names must exist in \`voice_profiles\`. The opening bracket tag is treated as a delivery cue, not spoken. Inline \`[pause]\` and \`[slight pause]\` markers become silence. Add future characters by adding a profile with a fixed Edge voice ID and using that exact speaker key on their turns.
+Each turn has a `speaker` and `text`. Speaker names must match the keys in the shared voice profile file. Existing bracketed emotion cues are passed to Gemini as performance tags; `[pause]` and `[slight pause]` are mapped to `[long pause]` and `[short pause]`. The complete speaker-labelled transcript is sent in one request, not one request per line.
 
-## Important limitations
+Add scripts with the same `segments` structure. Keep the same speaker names and shared profiles to preserve voice identity.
 
-- Edge TTS is a network service accessed through the community \`edge-tts\` Python package. No API key is required by this workflow, but Microsoft can change service availability or limits.
-- Edge TTS does not expose native acting/emotion controls for these voices. Delivery labels are approximated with subtle speaking-rate and pitch changes; they are not true emotion synthesis.
-- The script is written in Roman Hinglish. Hindi neural voices may pronounce Romanized Hindi and English loanwords differently from a native Hinglish speaker. Listen carefully; if pronunciation is off, add a per-turn \`tts_text\` field in Devanagari/phonetic spelling in a future enhancement rather than silently changing the canonical on-screen script.
-- A successful workflow means audio files were generated and technically encoded. It does not mean the voice acting has been approved. Listen to the MP3 before marking the voiceover approved or using it in a final video.
-- This workflow produces narration only. It does not bypass script, storyboard, or final-render approval gates in the existing video pipeline.
+## API and secret
 
+- Model: `gemini-3.1-flash-tts-preview`
+- API: Gemini generateContent with multi-speaker voice configuration
+- Request count: exactly one TTS API request per workflow execution
+- Required GitHub Actions secret: `GEMINI_API_KEY`
 
-## Edge TTS network reliability
+The workflow does not print or expose the key. Do not put API keys in script files or commit them to the repository.
 
-The generator retries transient `NoAudioReceived` and WebSocket failures four times with backoff. Microsoft Edge TTS is an unofficial public endpoint and may refuse traffic from cloud/datacenter IP ranges, including GitHub-hosted runners. If that happens, configure a trusted proxy URL as the repository Actions secret `EDGE_TTS_PROXY`, or run the workflow on a self-hosted runner with ordinary network egress. Do not commit proxy credentials to the repository. A retry does not guarantee success when the source IP is blocked.
+## Audio review
+
+The script is Roman Hinglish. Gemini supports Hindi and multi-speaker TTS, but Romanized Hinglish pronunciation and acting quality still need a human listen-through. A technically successful workflow is not the same as creative approval. Listen to the MP3 before using the narration in a final video.

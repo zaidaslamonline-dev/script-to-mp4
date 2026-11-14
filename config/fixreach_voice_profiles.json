@@ -1,14 +1,12 @@
 {
   "Sid": {
-    "voice": "en-IN-PrabhatNeural",
-    "rate": "+2%",
-    "pitch": "+0Hz",
+    "voice": "Puck",
+    "style": "youthful, upbeat, friendly male mentor",
     "role": "young mentor"
   },
   "Lala Bhai": {
-    "voice": "hi-IN-MadhurNeural",
-    "rate": "-2%",
-    "pitch": "-1Hz",
+    "voice": "Gacrux",
+    "style": "mature, warm, grounded male repair business owner",
     "role": "repair business owner"
   }
 }

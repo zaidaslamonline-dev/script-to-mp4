@@ -1,4 +1,4 @@
-name: FixReach Edge TTS voiceover
+name: FixReach Gemini TTS voiceover
 
 on:
   push:
@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   generate-voiceover:
-    name: Generate character-consistent voiceover
+    name: Generate one-call multi-character voiceover
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -23,20 +23,14 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Edge TTS and FFmpeg
+      - name: Install FFmpeg
         run: |
           sudo apt-get update
           sudo apt-get install -y ffmpeg
-          python -m pip install --upgrade pip
-          python -m pip install edge-tts
 
-      - name: Diagnose available Hindi Edge TTS voices
-        run: |
-          edge-tts --list-voices
-
-      - name: Generate Sid and Lala Bhai narration
+      - name: Generate Sid and Lala Bhai narration with Gemini
         env:
-          EDGE_TTS_PROXY: ${{ secrets.EDGE_TTS_PROXY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python scripts/generate_edge_tts.py \
             --script content/voiceovers/fixreach-better-leads-001.json \
@@ -54,7 +48,7 @@ jobs:
       - name: Upload voiceover files
         uses: actions/upload-artifact@v4
         with:
-          name: fixreach-edge-tts-voiceover
+          name: fixreach-gemini-tts-voiceover
           path: artifacts/fixreach-better-leads-001/
           if-no-files-found: error
           retention-days: 14
