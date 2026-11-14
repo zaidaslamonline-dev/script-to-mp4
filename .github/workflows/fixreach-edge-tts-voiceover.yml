@@ -9,10 +9,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: fixreach-edge-tts
-  cancel-in-progress: true
-
 jobs:
   generate-voiceover:
     name: Generate character-consistent voiceover
