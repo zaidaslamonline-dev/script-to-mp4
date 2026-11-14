@@ -86,12 +86,26 @@ def main():
         raise RuntimeError("Gemini returned no audio data: " + json.dumps(result.get("promptFeedback", {})))
     audio = b"".join(base64.b64decode(p["data"]) for p in audio_parts)
     mime = audio_parts[0].get("mimeType", "audio/pcm;rate=24000").lower()
-    if not mime.startswith("audio/pcm"):
+    # Gemini 3.1 Flash TTS returns headerless signed 16-bit little-endian PCM.
+    # Its MIME type is commonly audio/l16 (not audio/pcm), and both are decoded
+    # by FFmpeg's s16le demuxer. Do not byte-swap audio/l16: Google's REST
+    # generateContent example explicitly decodes it with -f s16le.
+    if not (mime.startswith("audio/pcm") or mime.startswith("audio/l16")):
         raise RuntimeError(f"Unexpected Gemini audio MIME type: {mime}")
     rate = 24000
-    if "rate=" in mime:
-        try: rate = int(mime.split("rate=", 1)[1].split(";", 1)[0])
-        except ValueError: pass
+    channels = 1
+    for parameter in mime.split(";")[1:]:
+        key, separator, value = parameter.strip().partition("=")
+        if not separator:
+            continue
+        if key.strip() == "rate":
+            rate = int(value.strip())
+        elif key.strip() == "channels":
+            channels = int(value.strip())
+    if rate <= 0 or channels <= 0:
+        raise RuntimeError(f"Invalid Gemini PCM audio parameters: {mime}")
+    if len(audio) % (2 * channels) != 0:
+        raise RuntimeError(f"PCM payload length is not aligned to {channels} channel(s): {len(audio)} bytes")
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     work = args.output_dir / "_work"
@@ -99,7 +113,7 @@ def main():
     raw = work / "gemini_output.pcm"
     raw.write_bytes(audio)
     raw_wav = work / "voiceover_raw.wav"
-    run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(rate), "-ac", "1", "-i", str(raw), "-c:a", "pcm_s16le", str(raw_wav)])
+    run(["ffmpeg", "-y", "-v", "error", "-f", "s16le", "-ar", str(rate), "-ac", str(channels), "-i", str(raw), "-c:a", "pcm_s16le", str(raw_wav)])
     wav_out, mp3_out = args.output_dir / "voiceover.wav", args.output_dir / "voiceover.mp3"
     run(["ffmpeg", "-y", "-v", "error", "-i", str(raw_wav), "-af", "loudnorm=I=-16:TP=-1.5:LRA=11", "-ar", "48000", "-ac", "2", "-c:a", "pcm_s16le", str(wav_out)])
     run(["ffmpeg", "-y", "-v", "error", "-i", str(wav_out), "-codec:a", "libmp3lame", "-b:a", "192k", str(mp3_out)])
