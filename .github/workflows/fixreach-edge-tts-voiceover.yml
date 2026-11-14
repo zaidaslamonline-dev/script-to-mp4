@@ -1,0 +1,59 @@
+name: FixReach Edge TTS voiceover
+
+on:
+  push:
+    branches:
+      - feat/fixreach-edge-tts-voiceover
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fixreach-edge-tts-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  generate-voiceover:
+    name: Generate character-consistent voiceover
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out the committed script
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install Edge TTS and FFmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade pip
+          python -m pip install edge-tts
+
+      - name: Generate Sid and Lala Bhai narration
+        run: |
+          python scripts/generate_edge_tts.py \
+            --script content/voiceovers/fixreach-better-leads-001.json \
+            --output-dir artifacts/fixreach-better-leads-001
+
+      - name: Validate audio outputs
+        run: |
+          test -s artifacts/fixreach-better-leads-001/voiceover.wav
+          test -s artifacts/fixreach-better-leads-001/voiceover.mp3
+          test -s artifacts/fixreach-better-leads-001/voiceover_manifest.json
+          ffprobe -v error -show_entries stream=codec_name,sample_rate,channels \
+            -of default=noprint_wrappers=1 artifacts/fixreach-better-leads-001/voiceover.wav
+          ffmpeg -v error -i artifacts/fixreach-better-leads-001/voiceover.mp3 -f null -
+
+      - name: Upload voiceover files
+        uses: actions/upload-artifact@v4
+        with:
+          name: fixreach-edge-tts-voiceover
+          path: artifacts/fixreach-better-leads-001/
+          if-no-files-found: error
+          retention-days: 14
