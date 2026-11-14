@@ -36,3 +36,8 @@ Each turn has a \`speaker\` and \`text\`. Supported speaker names must exist in 
 - The script is written in Roman Hinglish. Hindi neural voices may pronounce Romanized Hindi and English loanwords differently from a native Hinglish speaker. Listen carefully; if pronunciation is off, add a per-turn \`tts_text\` field in Devanagari/phonetic spelling in a future enhancement rather than silently changing the canonical on-screen script.
 - A successful workflow means audio files were generated and technically encoded. It does not mean the voice acting has been approved. Listen to the MP3 before marking the voiceover approved or using it in a final video.
 - This workflow produces narration only. It does not bypass script, storyboard, or final-render approval gates in the existing video pipeline.
+
+
+## Edge TTS network reliability
+
+The generator retries transient `NoAudioReceived` and WebSocket failures four times with backoff. Microsoft Edge TTS is an unofficial public endpoint and may refuse traffic from cloud/datacenter IP ranges, including GitHub-hosted runners. If that happens, configure a trusted proxy URL as the repository Actions secret `EDGE_TTS_PROXY`, or run the workflow on a self-hosted runner with ordinary network egress. Do not commit proxy credentials to the repository. A retry does not guarantee success when the source IP is blocked.
