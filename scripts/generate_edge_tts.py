@@ -123,7 +123,6 @@ async def main() -> None:
         voice = profile["voice"]
         items = parse_segment(segment, profile)
         spoken_parts = 0
-        delivery_cues = []
         for kind, value, prosody in items:
             if kind == "pause":
                 silence = work / f"chunk_{chunk_number:04d}.wav"
