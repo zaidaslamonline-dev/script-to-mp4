@@ -1,0 +1,86 @@
+{
+  "campaign_id": "fixreach-better-leads-001",
+  "title": "Better-qualified enquiries for repair businesses",
+  "language": "hi-IN",
+  "turn_pause_ms": 180,
+  "voice_profiles": {
+    "Sid": {
+      "voice": "hi-IN-AaravNeural",
+      "rate": "+2%",
+      "pitch": "+0Hz",
+      "role": "mentor"
+    },
+    "Lala Bhai": {
+      "voice": "hi-IN-MadhurNeural",
+      "rate": "-2%",
+      "pitch": "-1Hz",
+      "role": "repair business owner"
+    }
+  },
+  "segments": [
+    {
+      "speaker": "Lala Bhai",
+      "text": "[frustrated] Bhai, enquiries toh bahut aa rahi hain... [pause] lekin confirmed home service bookings? [disappointed] Woh toh jaise gayab hi ho gayi hain!"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[playful] Arre Lala Bhai! Phone toh garam ho raha hai... [teasing] par business thanda kyun pada hai?"
+    },
+    {
+      "speaker": "Lala Bhai",
+      "text": "[annoyed] Kya bataun, Bhai! Koi sirf price poochta hai, koi service area ke bahar hota hai... aur koi bolta hai, \"Baad mein batata hoon.\""
+    },
+    {
+      "speaker": "Sid",
+      "text": "[confident] Toh problem enquiries ki quantity nahi hai, Lala Bhai... [emphasis] problem hai unki quality!"
+    },
+    {
+      "speaker": "Lala Bhai",
+      "text": "[confused] Matlab?"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[explaining] Matlab, har enquiry actual customer nahi hoti. Tumhe aise log chahiye jinhe sach mein repair service ki zaroorat ho."
+    },
+    {
+      "speaker": "Sid",
+      "text": "[upbeat] Aur yahin FixReach karta hai help! [confident] Better-qualified customer enquiries aur home-service booking opportunities paane mein."
+    },
+    {
+      "speaker": "Sid",
+      "text": "[clear, deliberate] Customer se samjho teen simple cheezein:"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[slight pause] Pehli — problem kya hai? [slight pause] Doosri — location kahan hai? [slight pause] Teesri — service kab chahiye?"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[reassuring] Isse tum customer ki requirement samajh sakte ho aur home service visit schedule karne mein better planning kar sakte ho."
+    },
+    {
+      "speaker": "Lala Bhai",
+      "text": "[realization] Achhaaa! Matlab ab sirf phone calls ke peeche nahi bhaagna... [excited] balki actual service chahne wale customers par focus karna hai!"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[affirming] Bilkul! Technician ko bhi pata hoga ki kis customer ke ghar jaana hai."
+    },
+    {
+      "speaker": "Sid",
+      "text": "[energetic, direct] Aap bhi repair business chalate ho? Aur better leads chahte ho?"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[excited] Toh comment karo \"LEADS\"!"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[enthusiastic] FixReach ki taraf se milega aapko FREE Campaign Audit!"
+    },
+    {
+      "speaker": "Sid",
+      "text": "[cheerful] Bilkul free, Bhai! Apni campaigns ka haal jaan lo!"
+    }
+  ]
+}
