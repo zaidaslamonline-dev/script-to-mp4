@@ -1,0 +1,14 @@
+{
+  "Sid": {
+    "voice": "hi-IN-AaravNeural",
+    "rate": "+2%",
+    "pitch": "+0Hz",
+    "role": "young mentor"
+  },
+  "Lala Bhai": {
+    "voice": "hi-IN-MadhurNeural",
+    "rate": "-2%",
+    "pitch": "-1Hz",
+    "role": "repair business owner"
+  }
+}
