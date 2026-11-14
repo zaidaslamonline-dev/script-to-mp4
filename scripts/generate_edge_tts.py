@@ -145,7 +145,7 @@ async def main() -> None:
             "turn": turn_number,
             "speaker": speaker,
             "voice": voice,
-            "delivery_cues": [s["text"] for s in items if s[0] == "pause"],
+            "delivery_cues": re.findall(r"\[([^\]]+)\]", segment["text"]),
             "text": segment["text"],
         })
 
